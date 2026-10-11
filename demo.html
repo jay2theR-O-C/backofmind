@@ -43,6 +43,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #logo { width: min(320px, 76%); height: auto; margin-block: auto; mix-blend-mode: multiply; user-select: none; -webkit-user-drag: none; }
 :root[data-inv] #logo { filter: invert(1); mix-blend-mode: screen; }
 .inv { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--ink-faint); background: linear-gradient(90deg, #ffffff 50%, #111111 50%); }
+#lobbyLang { position: absolute; left: 16px; bottom: calc(50px + env(safe-area-inset-bottom, 0px)); width: 34px; height: 34px; padding: 0; border-radius: 50%; overflow: hidden; border: 1px solid var(--ink-faint); }
+#lobbyLang svg { display: block; width: 100%; height: 100%; }
+#lobbyLangList { position: absolute; left: 16px; bottom: calc(94px + env(safe-area-inset-bottom, 0px)); min-width: 190px; display: flex; flex-direction: column; padding: 6px; background: var(--sheet); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.lopt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 14px; border-radius: 10px; text-align: left; }
+.lopt:active { background: var(--line); }
+.lopt .flag { width: 20px; height: 20px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.lopt .flag svg { display: block; width: 100%; height: 100%; }
+.lopt[aria-checked="true"] { font-weight: 600; }
+.lopt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
 #thanksBtn { position: absolute; right: 16px; bottom: calc(50px + env(safe-area-inset-bottom, 0px)); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--ink-faint); font-size: 12px; color: var(--ink-soft); }
 #web { z-index: 6; background: var(--paper); overflow-y: auto; padding-inline: 24px; padding-block: 72px 48px; }
 #web .col { max-width: 420px; margin-inline: auto; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
@@ -62,6 +71,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #menu .mhead { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 22px 6px; }
 #menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 22px; }
 #undoHint { font-size: 13px; color: var(--ink-soft); min-width: 0; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#menu .val { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-soft); }
+#menu .flag { width: 22px; height: 22px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 1px var(--line); align-self: center; }
+#menu .flag svg { display: block; width: 100%; height: 100%; }
+#langList { display: flex; flex-direction: column; padding: 0 10px 6px; }
+#langList .opt { display: flex; align-items: center; gap: 12px; padding: 12px; font-size: 16px; border-radius: 14px; text-align: left; }
+#langList .opt:active { background: var(--line); }
+#langList .opt[aria-checked="true"] { font-weight: 600; }
+#langList .opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
 #menu .item:active { background: var(--line); }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
@@ -147,54 +164,131 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 <section id="start" class="screen">
   <img id="logo" alt="BOM" src="logo.webp">
-  <button id="openBtn" type="button">Open</button>
-  <button id="invBtn" class="inv" type="button" aria-label="Invert colors"></button>
-  <button id="thanksBtn" type="button">Back to website</button>
+  <button id="openBtn" type="button" data-t="open">Open</button>
+  <button id="invBtn" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
+  <button id="lobbyLang" type="button" data-ta="language" aria-label="Language"></button>
+  <div id="lobbyLangList" role="radiogroup" hidden></div>
+  <button id="thanksBtn" type="button" data-t="thanks">Back to website</button>
   <div class="mark">Back of Mind</div>
 </section>
 
 
 <main id="main" class="screen off">
   <div id="grid"></div>
-  <div id="empty" hidden>Nothing here yet. Tap + to add a note.</div>
+  <div id="empty" data-t="empty" hidden>Nothing here yet. Tap + to add a note.</div>
 </main>
 
 <div id="veil" hidden></div>
-<div id="pop" role="dialog" aria-label="Note">
-  <button id="colorBtn" type="button" aria-label="Note color"></button>
-  <button id="starBtn" type="button" aria-label="Star" aria-pressed="false">
+<div id="pop" role="dialog" data-ta="note" aria-label="Note">
+  <button id="colorBtn" type="button" data-ta="noteColor" aria-label="Note color"></button>
+  <button id="starBtn" type="button" data-ta="star" aria-label="Star" aria-pressed="false">
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M10 2.5l2.3 4.8 5.2.7-3.8 3.6.9 5.2-4.6-2.5-4.6 2.5.9-5.2L2.5 8l5.2-.7z"/></svg>
   </button>
   <div id="colors" hidden></div>
-  <input id="noteTitle" type="text" placeholder="Title" maxlength="80" autocomplete="off">
-  <textarea id="noteBody" placeholder="Note"></textarea>
+  <input id="noteTitle" type="text" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off">
+  <textarea id="noteBody" data-tp="note" placeholder="Note"></textarea>
   <div class="actions">
-    <button id="delBtn" type="button">Delete</button>
-    <button id="saveBtn" type="button">Save</button>
+    <button id="delBtn" type="button" data-t="del">Delete</button>
+    <button id="saveBtn" type="button" data-t="save">Save</button>
   </div>
 </div>
 <div id="menu" hidden>
-  <div class="mhead">Settings</div>
-  <button id="mEx" class="item" type="button">Add example notes</button>
+  <div class="mhead" data-t="settings">Settings</div>
   <button id="mClear" class="item" type="button">Clear all notes</button>
   <hr>
-  <button id="mUndo" class="item" type="button">Undo delete<span id="undoHint"></span></button>
+  <button id="mUndo" class="item" type="button"><span data-t="undo">Undo delete</span><span id="undoHint"></span></button>
   <hr>
-  <button id="mInv" class="inv" type="button" aria-label="Invert colors"></button>
+  <button id="mLang" class="item" type="button"><span data-t="language">Language</span><span class="val"><span id="langFlag" class="flag"></span><span id="langName">English</span></span></button>
+  <div id="langList" role="radiogroup" hidden></div>
+  <hr>
+  <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
 </div>
-<button id="exitBtn" type="button" aria-label="Back to start screen" hidden>
+<button id="exitBtn" type="button" data-ta="backStart" aria-label="Back to start screen" hidden>
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
 </button>
-<button id="gear" type="button" aria-label="Settings" hidden>
+<button id="gear" type="button" data-ta="settings" aria-label="Settings" hidden>
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h14M3 14h14"/><circle cx="8" cy="6" r="2.2" fill="var(--sheet)"/><circle cx="12" cy="14" r="2.2" fill="var(--sheet)"/></svg>
 </button>
-<button id="plus" type="button" aria-label="New note" hidden>
+<button id="plus" type="button" data-ta="newNote" aria-label="New note" hidden>
   <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 3v16M3 11h16"/></svg>
 </button>
 
 <script>
 const $ = id => document.getElementById(id);
 const KEY = 'back-of-mind-notes';
+/* Translations: add a language by adding an entry to LANGS and a table to STR. Missing keys fall back to en-US. */
+const FLAG = {
+  us: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/><path d="M12 0v24" stroke="#b22234" stroke-width="24" stroke-dasharray="1.846"/><rect width="12.5" height="12.92" fill="#3c3b6e"/><g stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="0 2.6"><path d="M1.6 2.2h10M1.6 6.4h10M1.6 10.6h10M2.9 4.3h9M2.9 8.5h9"/></g></svg>',
+  fi: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/><path d="M9 0v24M0 12h24" stroke="#003580" stroke-width="5.4"/></svg>',
+  gb: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#012169"/><path d="M0 0l24 24M24 0L0 24" stroke="#fff" stroke-width="4.8"/><path d="M0 0l24 24M24 0L0 24" stroke="#c8102e" stroke-width="1.6"/><path d="M12 0v24M0 12h24" stroke="#fff" stroke-width="8"/><path d="M12 0v24M0 12h24" stroke="#c8102e" stroke-width="4.8"/></svg>'
+};
+const LANGS = [
+  { id: 'en-US', name: 'English', full: 'English (US)', flag: 'us' },
+  { id: 'en-GB', name: 'English', full: 'English (UK)', flag: 'gb' },
+  { id: 'fi', name: 'Suomi', full: 'Suomi', flag: 'fi' }
+];
+const STR = {
+  'en-US': {
+    open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
+    noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', save: 'Save',
+    settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', newNote: 'New note',
+    star: 'Star', backLobby: 'Back to lobby', backStart: 'Back to start screen',
+    tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
+    merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
+    merch: 'See the merch', merchSoon: 'Merch coming soon', concept: 'Concept page. The real website will replace this.'
+  },
+  'en-GB': { invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
+  'fi': {
+    open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
+    noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', save: 'Tallenna',
+    settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', newNote: 'Uusi muistiinpano',
+    star: 'Tähti', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
+    tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
+    merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
+    merch: 'Katso tuotteet', merchSoon: 'Tuotteet tulossa pian', concept: 'Konseptisivu. Oikea verkkosivusto korvaa tämän.'
+  }
+};
+let lang = 'en-US';
+try { const l = localStorage.getItem(KEY + '-lang'); if (LANGS.some(x => x.id === l)) lang = l; } catch (e) {}
+const t = (k, v) => (STR[lang][k] || STR['en-US'][k] || k).replace('{n}', v);
+function undoText() {
+  const u = undo && undo[0][1];
+  return !undo ? t('undoNone') : undo.length > 1 ? t('undoMany', undo.length) : (u.title || (u.body || '').split('\n')[0] || t('note'));
+}
+function applyLang() {
+  const L = LANGS.find(x => x.id === lang);
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-t]').forEach(e => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll('[data-ta]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ta)));
+  document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });
+  document.querySelectorAll('.sw').forEach(e => e.setAttribute('aria-label', t('color')));
+  $('mClear').textContent = t($('mClear').dataset.armed ? 'clearArmed' : 'clear');
+  $('undoHint').textContent = undoText();
+  $('langFlag').innerHTML = FLAG[L.flag]; $('langName').textContent = L.name;
+  $('lobbyLang').innerHTML = FLAG[L.flag];
+  document.querySelectorAll('#lobbyLangList .lopt').forEach(o => o.setAttribute('aria-checked', o.dataset.id === lang));
+  $('mLang').setAttribute('aria-label', t('language') + ': ' + L.full);
+  document.querySelectorAll('#langList .opt').forEach(o => o.setAttribute('aria-checked', o.dataset.id === lang));
+}
+for (const L of LANGS) {
+  const o = document.createElement('button');
+  o.type = 'button'; o.className = 'opt'; o.dataset.id = L.id; o.setAttribute('role', 'radio');
+  o.innerHTML = '<span class="flag">' + FLAG[L.flag] + '</span>';
+  o.append(L.full);
+  o.onclick = () => { setLang(L.id); $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); };
+  $('langList').append(o);
+}
+for (const L of LANGS) {
+  const o = document.createElement('button');
+  o.type = 'button'; o.className = 'lopt'; o.dataset.id = L.id; o.setAttribute('role', 'radio');
+  o.innerHTML = '<span class="flag">' + FLAG[L.flag] + '</span>';
+  o.append(L.full);
+  o.onclick = () => { setLang(L.id); $('lobbyLangList').hidden = true; };
+  $('lobbyLangList').append(o);
+}
+function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); }
 const COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
 let notes = [];
 try { notes = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
@@ -336,27 +430,26 @@ function addExamples() {
   store(); render();
 }
 let seeded = false, inv = false;
-try { seeded = !!localStorage.getItem(KEY + '-seeded2'); inv = !!localStorage.getItem(KEY + '-inv'); } catch (e) {}
+try { seeded = !!localStorage.getItem(KEY + '-seeded3'); inv = !!localStorage.getItem(KEY + '-inv'); } catch (e) {}
 if (!seeded) {
   notes = notes.filter(n => !n.ex && !OLD.includes(n.title));
-  addExamples(); try { localStorage.setItem(KEY + '-seeded2', '1'); } catch (e) {}
+  addExamples(); try { localStorage.setItem(KEY + '-seeded3', '1'); } catch (e) {}
 }
 function setInv(on) {
   inv = on; document.documentElement.toggleAttribute('data-inv', on);
   try { localStorage.setItem(KEY + '-inv', on ? '1' : ''); } catch (e) {}
 }
 setInv(inv);
-function closeMenu() { $('menu').hidden = true; $('mClear').textContent = 'Clear all notes'; delete $('mClear').dataset.armed; }
+function closeMenu() { $('menu').hidden = true; $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); delete $('mClear').dataset.armed; $('mClear').textContent = t('clear'); }
 function closeAll() { closePop(); closeMenu(); }
 $('invBtn').onclick = $('mInv').onclick = () => setInv(!inv);
 $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open) { $('mUndo').disabled = !undo;
-  const u = undo && undo[0][1];
-  $('undoHint').textContent = !undo ? 'Nothing to undo' : undo.length > 1 ? undo.length + ' notes' : (u.title || (u.body || '').split('\n')[0] || 'Note');
+  $('undoHint').textContent = undoText();
   $('menu').hidden = false; $('veil').hidden = false; } };
+$('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
 $('mUndo').onclick = () => { undoDelete(); closeAll(); };
-$('mEx').onclick = () => { addExamples(); closeAll(); };
 $('mClear').onclick = () => {
-  if (!$('mClear').dataset.armed) { $('mClear').dataset.armed = '1'; $('mClear').textContent = 'Tap again to clear'; return; }
+  if (!$('mClear').dataset.armed) { $('mClear').dataset.armed = '1'; $('mClear').textContent = t('clearArmed'); return; }
   removeNotes(notes.slice()); closeAll();
 };
 $('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
@@ -367,6 +460,8 @@ $('exitBtn').onclick = () => {
   $('plus').hidden = true; $('gear').hidden = true; $('exitBtn').hidden = true;
 };
 $('saveBtn').onclick = save;
+$('lobbyLang').onclick = () => { $('lobbyLangList').hidden = !$('lobbyLangList').hidden; };
+$('start').addEventListener('click', e => { if (!e.target.closest('#lobbyLang, #lobbyLangList')) $('lobbyLangList').hidden = true; });
 $('thanksBtn').onclick = () => { location.href = './'; };
 $('starBtn').onclick = () => setStar(!star);
 $('delBtn').onclick = del;
@@ -376,6 +471,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closePop();
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) save();
 });
+applyLang();
 render();
 </script>
 
