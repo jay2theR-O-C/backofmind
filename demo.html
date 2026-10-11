@@ -80,6 +80,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #langList .opt[aria-checked="true"] { font-weight: 600; }
 #langList .opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
 #menu .item:active { background: var(--line); }
+#mSkip { cursor: pointer; align-items: center; }
+#skipChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
 #openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
@@ -194,12 +196,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 </div>
 <div id="menu" hidden>
   <div class="mhead" data-t="settings">Settings</div>
-  <button id="mClear" class="item" type="button">Clear all notes</button>
-  <hr>
   <button id="mUndo" class="item" type="button"><span data-t="undo">Undo delete</span><span id="undoHint"></span></button>
   <hr>
   <button id="mLang" class="item" type="button"><span data-t="language">Language</span><span class="val"><span id="langFlag" class="flag"></span><span id="langName">English</span></span></button>
   <div id="langList" role="radiogroup" hidden></div>
+  <label id="mSkip" class="item"><span data-t="skipLobby">Skip lobby page</span><input id="skipChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
 </div>
@@ -232,7 +233,7 @@ const STR = {
     open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
     noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', save: 'Save',
     settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
-    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', newNote: 'New note',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', skipLobby: 'Skip lobby page', newNote: 'New note',
     star: 'Star', backLobby: 'Back to lobby', backStart: 'Back to start screen',
     tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
     merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
@@ -243,7 +244,7 @@ const STR = {
     open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
     noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', save: 'Tallenna',
     settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
-    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', newNote: 'Uusi muistiinpano',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
     star: 'Tähti', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
     tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
     merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
@@ -264,7 +265,6 @@ function applyLang() {
   document.querySelectorAll('[data-ta]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ta)));
   document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });
   document.querySelectorAll('.sw').forEach(e => e.setAttribute('aria-label', t('color')));
-  $('mClear').textContent = t($('mClear').dataset.armed ? 'clearArmed' : 'clear');
   $('undoHint').textContent = undoText();
   $('langFlag').innerHTML = FLAG[L.flag]; $('langName').textContent = L.name;
   $('lobbyLang').innerHTML = FLAG[L.flag];
@@ -440,7 +440,7 @@ function setInv(on) {
   try { localStorage.setItem(KEY + '-inv', on ? '1' : ''); } catch (e) {}
 }
 setInv(inv);
-function closeMenu() { $('menu').hidden = true; $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); delete $('mClear').dataset.armed; $('mClear').textContent = t('clear'); }
+function closeMenu() { $('menu').hidden = true; $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); }
 function closeAll() { closePop(); closeMenu(); }
 $('invBtn').onclick = $('mInv').onclick = () => setInv(!inv);
 $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open) { $('mUndo').disabled = !undo;
@@ -448,10 +448,6 @@ $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open)
   $('menu').hidden = false; $('veil').hidden = false; } };
 $('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
 $('mUndo').onclick = () => { undoDelete(); closeAll(); };
-$('mClear').onclick = () => {
-  if (!$('mClear').dataset.armed) { $('mClear').dataset.armed = '1'; $('mClear').textContent = t('clearArmed'); return; }
-  removeNotes(notes.slice()); closeAll();
-};
 $('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
 $('veil').onclick = closeAll;
 $('exitBtn').onclick = () => {
@@ -471,6 +467,15 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closePop();
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) save();
 });
+let skip = false;
+try { skip = !!localStorage.getItem(KEY + '-skip'); } catch (e) {}
+$('skipChk').checked = skip;
+$('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
+if (skip) {
+  $('start').style.transition = 'none';
+  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('exitBtn').hidden = false;
+  setTimeout(() => { $('start').style.transition = ''; }, 50);
+}
 applyLang();
 render();
 </script>
