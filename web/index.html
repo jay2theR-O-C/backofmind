@@ -183,7 +183,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 :root[data-inv] #pop.starred { outline-color: var(--ink); }
 #starBtn { position: absolute; top: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
 #starBtn[aria-pressed="true"] svg { fill: currentColor; }
-#colorBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f3bcb3, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f3bcb3); }
+#colorBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f29a8e, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f29a8e); }
 #colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
 .sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); background: var(--c); }
 .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
@@ -357,9 +357,9 @@ for (const L of LANGS) {
   $('lobbyLangList').append(o);
 }
 function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); render(); }
-const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f3bcb3', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
+const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f29a8e', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
 const OLD_COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
-const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; };
+const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; if (n.color === '#f3bcb3') n.color = COLORS[3]; };
 let nums = false, rand = false, tagsOn = false, tags = [];
 try { tagsOn = !!localStorage.getItem(KEY + '-tags'); } catch (e) {}
 try { rand = !!localStorage.getItem(KEY + '-rand'); } catch (e) {}
