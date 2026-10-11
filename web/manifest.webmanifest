@@ -1,0 +1,23 @@
+{
+  "name": "Back of Mind",
+  "short_name": "Back of Mind",
+  "description": "Notes that never leave your phone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdfaf0",
+  "theme_color": "#fdfaf0",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

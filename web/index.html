@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Back of Mind</title>
+<meta name="description" content="Back of Mind. Notes stay on this device.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#fdfaf0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Back of Mind">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+</head>
+<body>
+<style>
+@font-face { font-family: "Hanken Grotesk"; src: url(fonts/hanken-grotesk.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url(fonts/atkinson-hyperlegible-700.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+body { margin: 0; font-size: 14px; } [hidden] { display: none !important; }
+/* Layout: one paper sheet; everything hangs off a single round button at bottom center. */
+:root {
+  color-scheme: light;
+  --paper: #fdfaf0;
+  --ink: #141414;
+  --ink-soft: #6b675c;
+  --ink-faint: #b9b3a3;
+  --line: #e9e3d2;
+  --sheet: #fffdf7;
+  --shadow: 0 10px 34px rgba(60, 50, 20, .16), 0 1px 3px rgba(60, 50, 20, .1);
+  --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --on-tint: #141414;
+}
+:root[data-inv] {
+  color-scheme: dark;
+  --paper: #141413; --ink: #f6f2e6; --ink-soft: #a39e90; --ink-faint: #5e5a50; --line: #48453e; --sheet: #302f2b;
+  --shadow: 0 10px 34px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
+}
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font); overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* Paper-colored strip under the status bar so notes never scroll beneath the clock. */
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--paper); z-index: 1; }
+/* iPhone, opened in Safari: reminder to add the app to the Home Screen. */
+#installHint { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; right: 12px; z-index: 7; display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--sheet); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); font-size: 13px; line-height: 1.4; }
+#installHint button { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink-soft); }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.screen { position: fixed; inset: 0; transition: opacity .22s ease; }
+.screen.off { opacity: 0; pointer-events: none; }
+
+/* Start */
+#start { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 18px; padding-bottom: 24vh; background: var(--paper); z-index: 5; }
+#logo { width: min(320px, 76%); height: auto; margin-block: auto; mix-blend-mode: multiply; user-select: none; -webkit-user-drag: none; }
+:root[data-inv] #logo { filter: invert(1); mix-blend-mode: screen; }
+.inv { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--ink-faint); background: linear-gradient(90deg, #ffffff 50%, #111111 50%); }
+#lobbyLang { position: absolute; left: 16px; bottom: calc(50px + env(safe-area-inset-bottom, 0px)); width: 34px; height: 34px; padding: 0; border-radius: 50%; overflow: hidden; border: 1px solid var(--ink-faint); }
+#lobbyLang svg { display: block; width: 100%; height: 100%; }
+#lobbyLangList { position: absolute; left: 16px; bottom: calc(94px + env(safe-area-inset-bottom, 0px)); min-width: 190px; display: flex; flex-direction: column; padding: 6px; background: var(--sheet); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.lopt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 14px; border-radius: 10px; text-align: left; }
+.lopt:active { background: var(--line); }
+.lopt .flag { width: 20px; height: 20px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.lopt .flag svg { display: block; width: 100%; height: 100%; }
+.lopt[aria-checked="true"] { font-weight: 600; }
+.lopt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
+#thanksBtn { position: absolute; right: 16px; bottom: calc(50px + env(safe-area-inset-bottom, 0px)); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--ink-faint); font-size: 12px; color: var(--ink-soft); }
+#web { z-index: 6; background: var(--paper); overflow-y: auto; padding-inline: 24px; padding-block: 72px 48px; }
+#web .col { max-width: 420px; margin-inline: auto; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+#webLogo { width: min(220px, 60%); mix-blend-mode: multiply; }
+:root[data-inv] #webLogo { filter: invert(1); mix-blend-mode: screen; }
+#web h1 { margin: 0; font-size: 28px; font-weight: 700; text-wrap: balance; }
+#web p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+#web ul { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+#web li { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 13px; }
+#web .cta { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 14px 32px; font-size: 16px; font-weight: 500; margin-top: 10px; }
+#web .fine { font-size: 12px; color: var(--ink-soft); opacity: .7; }
+#webBack { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; }
+#exitBtn { position: fixed; left: 16px; bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
+#gear { position: fixed; left: calc(50% + 42px); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
+#menu { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(440px, calc(100% - 32px)); box-sizing: border-box; background: var(--sheet); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); padding: 12px; z-index: 3; display: flex; flex-direction: column; }
+#menu .item { text-align: left; padding: 18px 22px; font-size: 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+#menu .mhead { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 22px 6px; }
+#menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 22px; }
+#undoHint { font-size: 13px; color: var(--ink-soft); min-width: 0; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#menu .val { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-soft); }
+#menu .flag { width: 22px; height: 22px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 1px var(--line); align-self: center; }
+#menu .flag svg { display: block; width: 100%; height: 100%; }
+#langList { display: flex; flex-direction: column; padding: 0 10px 6px; }
+#langList .opt { display: flex; align-items: center; gap: 12px; padding: 12px; font-size: 16px; border-radius: 14px; text-align: left; }
+#langList .opt:active { background: var(--line); }
+#langList .opt[aria-checked="true"] { font-weight: 600; }
+#langList .opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
+#menu .item:active { background: var(--line); }
+#mSkip, #mNums { cursor: pointer; align-items: center; }
+.note[data-num]::after { content: attr(data-num); position: absolute; top: 5px; right: 8px; font-size: 10px; font-weight: 600; opacity: .5; font-variant-numeric: tabular-nums; }
+.note[data-num] > :first-child { padding-right: 14px; }
+#skipChk, #numsChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+#menu .item:disabled { opacity: .35; cursor: default; }
+#mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
+#openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
+#openBtn:active { transform: scale(.9); }
+#openBtn.go { animation: openPop .34s ease-out; }
+@keyframes openPop {
+  0% { transform: scale(.9); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink) 40%, transparent); }
+  55% { transform: scale(1.1); }
+  100% { transform: scale(1); box-shadow: 0 0 0 28px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { #openBtn.go { animation: none; } }
+#invBtn { position: absolute; left: 50%; margin-left: -17px; bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
+.mark { position: absolute; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 11px; letter-spacing: .08em; color: var(--ink-faint); }
+
+/* Main */
+#main { overflow-y: auto; overscroll-behavior: contain; padding-inline: 16px; padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(140px + env(safe-area-inset-bottom, 0px)); }
+#grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 720px; margin-inline: auto; align-items: start; }
+.note { text-align: left; border-radius: 12px; padding: 10px; background: var(--c, var(--sheet)); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; gap: 4px; position: relative; transition: transform .18s ease, box-shadow .18s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
+.note:nth-child(3n+1) { transform-origin: 0 50%; }
+.note:nth-child(3n) { transform-origin: 100% 50%; }
+.note.held { transform: scale(1.6); z-index: 1; box-shadow: var(--shadow); }
+.note h3 { margin: 0; font-family: "Atkinson Hyperlegible", var(--font); font-size: 14.5px; font-weight: 700; line-height: 1.25; letter-spacing: .01em; overflow-wrap: anywhere; padding-bottom: 5px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
+.note h3 .st { margin-right: 4px; }
+.note h3 .st svg { width: .9em; height: .9em; vertical-align: -.08em; }
+.note h3:only-child { padding-bottom: 0; border-bottom: 0; }
+.note { color: var(--on-tint); }
+.note.plain { color: var(--ink); }
+#pop { color: var(--pi); --pi: var(--on-tint); --pb: #fffdf7; }
+#pop.plain { --pi: var(--ink); --pb: var(--paper); }
+.note p { margin: 0; font-size: 11.5px; line-height: 1.4; opacity: .82; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
+#empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-faint); font-size: 13px; pointer-events: none; }
+
+#plus { position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow); z-index: 4; transition: transform .2s ease; }
+#plus svg { transition: transform .2s ease; }
+#plus.open svg { transform: rotate(45deg); }
+#plus:active { transform: scale(.94); }
+
+/* Popup */
+#veil { position: fixed; inset: 0; z-index: 2; }
+#veil.dim { z-index: 5; background: rgba(20, 20, 20, .42); }
+:root[data-inv] #veil.dim { background: rgba(0, 0, 0, .6); }
+#pop { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100% - 32px)); transform: translateX(-50%) translateY(10px) scale(.96); transform-origin: 50% 100%; opacity: 0; pointer-events: none; transition: opacity .16s ease, transform .16s ease, background .15s ease; background: var(--c, var(--sheet)); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 14px; z-index: 6; display: flex; flex-direction: column; gap: 8px; }
+#pop.open { opacity: 1; pointer-events: auto; transform: translateX(-50%); }
+#pop.center { bottom: auto; top: calc(var(--vvt, 0px) + var(--vvh, 100vh) / 2); transform: translate(-50%, -48%) scale(.96); transform-origin: 50% 50%; }
+#pop.center.open { transform: translate(-50%, -50%); }
+#pop.center #noteBody { height: min(240px, calc(var(--vvh, 100vh) * .4)); }
+#noteTitle, #noteBody { width: 100%; box-sizing: border-box; border: 0; background: transparent; font-family: var(--font); color: inherit; resize: none; padding: 4px 2px; }
+#noteTitle { font-family: "Atkinson Hyperlegible", var(--font); font-size: 19px; font-weight: 700; padding-right: 84px; margin-top: 14px; padding-bottom: 9px; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); }
+#noteBody { font-size: 14px; line-height: 1.45; height: 130px; }
+#noteTitle::placeholder, #noteBody::placeholder { color: color-mix(in srgb, currentColor 35%, transparent); }
+#noteTitle:focus-visible, #noteBody:focus-visible { outline: none; }
+.actions { display: flex; align-items: center; justify-content: center; gap: 12px; border-top: 1px solid rgba(0,0,0,.07); padding-top: 10px; position: relative; min-height: 52px; }
+#saveBtn { background: var(--pi); color: var(--pb); border-radius: 999px; padding: 9px 26px; font-size: 14px; font-weight: 500; }
+#trashBtn { position: relative; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#trashBtn .ring { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); pointer-events: none; }
+#trashBtn .ring circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-dasharray: 151; stroke-dashoffset: 151; transition: stroke-dashoffset .18s ease-out; }
+#trashBtn.holding .ring circle { stroke-dashoffset: 0; transition: stroke-dashoffset .9s linear; }
+#trashBtn.holding { transform: scale(.94); }
+#trashHint { position: absolute; left: calc(50% + 38px); top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0; transition: opacity .2s ease; pointer-events: none; white-space: nowrap; }
+#trashHint.show { opacity: .7; }
+#delBtn { font-size: 14px; padding: 9px 26px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); opacity: .85; }
+
+.note, #pop { --sheen: rgba(255, 255, 255, .95); }
+.note.plain, #pop.plain { --sheen: rgba(222, 176, 58, .6); }
+:root[data-inv] .note.plain, :root[data-inv] #pop.plain { --sheen: rgba(255, 255, 255, .34); }
+.note { --edge: 16px; }
+#pop { --edge: 30px; }
+.starred { isolation: isolate; }
+.starred::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, #000, transparent var(--edge)), linear-gradient(to left, #000, transparent var(--edge)), linear-gradient(to bottom, #000, transparent var(--edge)), linear-gradient(to top, #000, transparent var(--edge));
+  mask-image: linear-gradient(to right, #000, transparent var(--edge)), linear-gradient(to left, #000, transparent var(--edge)), linear-gradient(to bottom, #000, transparent var(--edge)), linear-gradient(to top, #000, transparent var(--edge));
+  background-image:
+    radial-gradient(circle, var(--sheen) 0 1.4px, transparent 2.6px),
+    radial-gradient(circle, var(--sheen) 0 .9px, transparent 2px),
+    radial-gradient(circle, var(--sheen) 0 2.2px, transparent 3.8px);
+  background-size: 23px 29px, 17px 19px, 37px 31px;
+  background-position: 0 0, 6px 10px, 15px 4px;
+  animation: drift 12s linear infinite;
+}
+@keyframes drift { to { background-position: 23px -58px, -28px -28px, 52px -58px; } }
+@media (prefers-reduced-motion: reduce) { .starred::before { animation: none; } }
+#starBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
+#starBtn[aria-pressed="true"] svg { fill: currentColor; }
+#colorBtn { position: absolute; top: 10px; right: 50px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f6d9d2, #fbe9a8, #d6ecd0, #d3e4f5, #e3d9f2, #f6d9d2); }
+#colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--sheet); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
+.sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,.14); background: var(--c); }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 3.5px var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<section id="start" class="screen">
+  <img id="logo" alt="BOM" src="logo.webp">
+  <button id="openBtn" type="button" data-t="open">Open</button>
+  <button id="invBtn" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
+  <button id="lobbyLang" type="button" data-ta="language" aria-label="Language"></button>
+  <div id="lobbyLangList" role="radiogroup" hidden></div>
+  <button id="thanksBtn" type="button" data-t="merch">See the merch</button>
+  <div class="mark">Back of Mind</div>
+</section>
+
+
+<main id="main" class="screen off">
+  <div id="grid"></div>
+  <div id="empty" data-t="empty" hidden>Nothing here yet. Tap + to add a note.</div>
+</main>
+
+<div id="installHint" hidden><span data-t="installHint"></span><button id="installHintX" type="button" aria-label="Close">×</button></div>
+<div id="veil" hidden></div>
+<div id="pop" role="dialog" data-ta="note" aria-label="Note">
+  <button id="colorBtn" type="button" data-ta="noteColor" aria-label="Note color"></button>
+  <button id="starBtn" type="button" data-ta="star" aria-label="Star" aria-pressed="false">
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>
+  </button>
+  <div id="colors" hidden></div>
+  <input id="noteTitle" type="text" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off">
+  <textarea id="noteBody" data-tp="note" placeholder="Note"></textarea>
+  <div class="actions">
+    <button id="delBtn" type="button" data-t="cancel">Cancel</button>
+    <button id="trashBtn" type="button" data-ta="holdDelete" aria-label="Hold to delete" hidden>
+      <svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/></svg>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5h13M8 5.5V3.5h4v2M5.5 5.5l.8 11h7.4l.8-11M8.5 8.5v5M11.5 8.5v5"/></svg>
+    </button>
+    <span id="trashHint" data-t="holdDelete">Hold to delete</span>
+    <button id="saveBtn" type="button" data-t="save" hidden>Save</button>
+  </div>
+</div>
+<div id="menu" hidden>
+  <div class="mhead" data-t="settings">Settings</div>
+  <button id="mUndo" class="item" type="button"><span data-t="undo">Undo delete</span><span id="undoHint"></span></button>
+  <hr>
+  <button id="mLang" class="item" type="button"><span data-t="language">Language</span><span class="val"><span id="langFlag" class="flag"></span><span id="langName">English</span></span></button>
+  <div id="langList" role="radiogroup" hidden></div>
+  <label id="mSkip" class="item"><span data-t="skipLobby">Skip lobby page</span><input id="skipChk" type="checkbox"></label>
+  <label id="mNums" class="item"><span data-t="orderNums">Show order numbers</span><input id="numsChk" type="checkbox"></label>
+  <hr>
+  <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
+</div>
+<button id="exitBtn" type="button" data-ta="backStart" aria-label="Back to start screen" hidden>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+</button>
+<button id="gear" type="button" data-ta="settings" aria-label="Settings" hidden>
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h14M3 14h14"/><circle cx="8" cy="6" r="2.2" fill="var(--sheet)"/><circle cx="12" cy="14" r="2.2" fill="var(--sheet)"/></svg>
+</button>
+<button id="plus" type="button" data-ta="newNote" aria-label="New note" hidden>
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 3v16M3 11h16"/></svg>
+</button>
+
+<script>
+(async () => {
+// Storage. Everything is kept on this device and nothing is sent anywhere.
+// In the Android app there is a second copy in the phone's app storage
+// (Preferences); it is restored here before the app starts.
+const CAP = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins : {};
+const PREFS = CAP.Preferences || null;
+const LS = window.localStorage;
+if (PREFS) {
+  try {
+    const r = await PREFS.keys();
+    for (const k of (r && r.keys) || []) {
+      const v = await PREFS.get({ key: k });
+      if (v && v.value != null) { try { LS.setItem(k, v.value); } catch (e) {} }
+    }
+  } catch (e) {}
+}
+const localStorage = {
+  getItem: k => LS.getItem(k),
+  setItem: (k, v) => { if (PREFS) PREFS.set({ key: k, value: String(v) }).catch(() => {}); LS.setItem(k, v); },
+  removeItem: k => { if (PREFS) PREFS.remove({ key: k }).catch(() => {}); LS.removeItem(k); }
+};
+const $ = id => document.getElementById(id);
+const PIN = '<svg viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>';
+const KEY = 'back-of-mind-notes';
+/* Translations: add a language by adding an entry to LANGS and a table to STR. Missing keys fall back to en-US. */
+const FLAG = {
+  us: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/><path d="M12 0v24" stroke="#b22234" stroke-width="24" stroke-dasharray="1.846"/><rect width="12.5" height="12.92" fill="#3c3b6e"/><g stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="0 2.6"><path d="M1.6 2.2h10M1.6 6.4h10M1.6 10.6h10M2.9 4.3h9M2.9 8.5h9"/></g></svg>',
+  fi: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff"/><path d="M9 0v24M0 12h24" stroke="#003580" stroke-width="5.4"/></svg>',
+  gb: '<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#012169"/><path d="M0 0l24 24M24 0L0 24" stroke="#fff" stroke-width="4.8"/><path d="M0 0l24 24M24 0L0 24" stroke="#c8102e" stroke-width="1.6"/><path d="M12 0v24M0 12h24" stroke="#fff" stroke-width="8"/><path d="M12 0v24M0 12h24" stroke="#c8102e" stroke-width="4.8"/></svg>'
+};
+const LANGS = [
+  { id: 'en-US', name: 'English', full: 'English (US)', flag: 'us' },
+  { id: 'en-GB', name: 'English', full: 'English (UK)', flag: 'gb' },
+  { id: 'fi', name: 'Suomi', full: 'Suomi', flag: 'fi' }
+];
+const STR = {
+  'en-US': {
+    installHint: 'To keep your notes, add this app to your Home Screen: tap Share, then “Add to Home Screen”.',
+    open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
+    noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', cancel: 'Cancel', save: 'Save',
+    settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
+    star: 'Pin', backLobby: 'Back to lobby', backStart: 'Back to start screen',
+    tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
+    merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
+    merch: 'See the merch', merchSoon: 'Merch coming soon', concept: 'Concept page. The real website will replace this.'
+  },
+  'en-GB': { invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
+  'fi': {
+    installHint: 'Jotta muistiinpanosi säilyvät, lisää sovellus Koti-valikkoon: napauta Jaa ja valitse ”Lisää Koti-valikkoon”.',
+    open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
+    noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', cancel: 'Peruuta', save: 'Tallenna',
+    settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
+    star: 'Kiinnitä', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
+    tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
+    merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
+    merch: 'Katso tuotteet', merchSoon: 'Tuotteet tulossa pian', concept: 'Konseptisivu. Oikea verkkosivusto korvaa tämän.'
+  }
+};
+let lang = 'en-US';
+try { const l = localStorage.getItem(KEY + '-lang'); if (LANGS.some(x => x.id === l)) lang = l; } catch (e) {}
+const t = (k, v) => (STR[lang][k] || STR['en-US'][k] || k).replace('{n}', v);
+function undoText() {
+  const u = undo && undo[0][1];
+  return !undo ? t('undoNone') : undo.length > 1 ? t('undoMany', undo.length) : (u.title || (u.body || '').split('\n')[0] || t('note'));
+}
+function applyLang() {
+  const L = LANGS.find(x => x.id === lang);
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-t]').forEach(e => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll('[data-ta]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ta)));
+  document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });
+  document.querySelectorAll('.sw').forEach(e => e.setAttribute('aria-label', t('color')));
+  $('undoHint').textContent = undoText();
+  $('langFlag').innerHTML = FLAG[L.flag]; $('langName').textContent = L.name;
+  $('lobbyLang').innerHTML = FLAG[L.flag];
+  document.querySelectorAll('#lobbyLangList .lopt').forEach(o => o.setAttribute('aria-checked', o.dataset.id === lang));
+  $('mLang').setAttribute('aria-label', t('language') + ': ' + L.full);
+  document.querySelectorAll('#langList .opt').forEach(o => o.setAttribute('aria-checked', o.dataset.id === lang));
+}
+for (const L of LANGS) {
+  const o = document.createElement('button');
+  o.type = 'button'; o.className = 'opt'; o.dataset.id = L.id; o.setAttribute('role', 'radio');
+  o.innerHTML = '<span class="flag">' + FLAG[L.flag] + '</span>';
+  o.append(L.full);
+  o.onclick = () => { setLang(L.id); $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); };
+  $('langList').append(o);
+}
+for (const L of LANGS) {
+  const o = document.createElement('button');
+  o.type = 'button'; o.className = 'lopt'; o.dataset.id = L.id; o.setAttribute('role', 'radio');
+  o.innerHTML = '<span class="flag">' + FLAG[L.flag] + '</span>';
+  o.append(L.full);
+  o.onclick = () => { setLang(L.id); $('lobbyLangList').hidden = true; };
+  $('lobbyLangList').append(o);
+}
+function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); }
+const COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
+let nums = false;
+try { nums = !!localStorage.getItem(KEY + '-nums'); } catch (e) {}
+let notes = [];
+try { notes = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
+let editing = null, color = COLORS[0];
+
+function store() { try { localStorage.setItem(KEY, JSON.stringify(notes)); } catch (e) {} }
+let undo = null;
+try { undo = JSON.parse(localStorage.getItem(KEY + '-undo')) || null; } catch (e) {}
+function saveUndo() { try { localStorage.setItem(KEY + '-undo', JSON.stringify(undo)); } catch (e) {} }
+function removeNotes(list) {
+  const gone = list.map(n => [notes.indexOf(n), n]).filter(u => u[0] >= 0).sort((a, b) => a[0] - b[0]);
+  if (!gone.length) return;
+  undo = gone;
+  notes = notes.filter(n => !list.includes(n));
+  saveUndo(); store(); render();
+}
+function undoDelete() {
+  if (!undo) return;
+  for (const [i, n] of undo) notes.splice(Math.min(i, notes.length), 0, n);
+  undo = null; saveUndo(); store(); render();
+}
+
+function render() {
+  const grid = $('grid');
+  grid.textContent = '';
+  let idx = 0;
+  for (const n of notes.filter(n => n.star).concat(notes.filter(n => !n.star))) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = n.star ? 'note starred' : 'note';
+    if (nums) b.dataset.num = ++idx;
+    if (n.color === COLORS[0]) b.classList.add('plain'); else b.style.setProperty('--c', n.color);
+    if (n.title || n.star) {
+      const h = document.createElement('h3'); h.textContent = n.title;
+      if (n.star) { const s = document.createElement('span'); s.className = 'st'; s.innerHTML = PIN; h.prepend(s); }
+      b.append(h);
+    }
+    if (n.body) { const p = document.createElement('p'); p.textContent = n.body; b.append(p); }
+    let timer, wasHeld = false, swiping = false, down = false, sx = 0, sy = 0, dx = 0;
+    const release = () => { down = false; clearTimeout(timer); b.classList.remove('held'); b.style.transition = b.style.transform = b.style.opacity = ''; };
+    b.onpointerdown = e => {
+      wasHeld = swiping = false; down = true; sx = e.clientX; sy = e.clientY; dx = 0;
+      try { b.setPointerCapture(e.pointerId); } catch (err) {}
+      timer = setTimeout(() => { wasHeld = true; b.classList.add('held'); }, 300);
+    };
+    b.onpointermove = e => {
+      if (!down || wasHeld) return;
+      dx = e.clientX - sx;
+      if (!swiping && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(e.clientY - sy)) { swiping = true; clearTimeout(timer); b.style.transition = 'none'; }
+      if (swiping) { const x = Math.min(0, dx); b.style.transform = 'translateX(' + x + 'px)'; b.style.opacity = Math.max(.25, 1 + x / 160); }
+    };
+    b.onpointerup = () => {
+      if (!(swiping && dx < -70)) return release();
+      down = false;
+      b.style.transition = 'transform .16s ease, opacity .16s ease'; b.style.transform = 'translateX(-130%)'; b.style.opacity = 0;
+      setTimeout(() => removeNotes([n]), 160);
+    };
+    b.onpointercancel = release;
+    b.addEventListener('touchmove', e => { if (wasHeld && e.cancelable) e.preventDefault(); }, { passive: false });
+    b.oncontextmenu = e => e.preventDefault();
+    b.onclick = () => { if (!wasHeld && !swiping) openPop(n); };
+    grid.append(b);
+  }
+  $('empty').hidden = notes.length > 0;
+}
+
+function setColor(c) {
+  color = c;
+  const plain = c === COLORS[0];
+  $('pop').classList.toggle('plain', plain);
+  if (plain) $('pop').style.removeProperty('--c'); else $('pop').style.setProperty('--c', c);
+  document.querySelectorAll('.sw').forEach(s => s.setAttribute('aria-pressed', s.dataset.c === c));
+  liveSave();
+}
+
+let star = false;
+function setStar(v) {
+  star = v; $('pop').classList.toggle('starred', v); $('starBtn').setAttribute('aria-pressed', v);
+  liveSave();
+}
+let isNew = false, orig = null;
+function liveSave() {
+  if (!$('pop').classList.contains('open')) return;
+  const title = $('noteTitle').value.trim(), body = $('noteBody').value.trim();
+  if (!(title || body)) return;
+  if (editing) Object.assign(editing, { title, body, color, star });
+  else { editing = { id: Date.now(), title, body, color, star }; notes.unshift(editing); }
+  store();
+}
+function dropNew() { notes = notes.filter(n => n !== editing); store(); render(); }
+function openPop(n) {
+  editing = n || null; isNew = !n; orig = n ? Object.assign({}, n) : null;
+  $('pop').classList.add('center');
+  $('delBtn').hidden = !!n; $('trashBtn').hidden = !n; $('trashHint').classList.remove('show');
+  $('noteTitle').value = n ? n.title : '';
+  $('noteBody').value = n ? n.body : '';
+  setColor(n ? n.color : COLORS[0]);
+  setStar(n ? !!n.star : false);
+  $('colors').hidden = true;
+  $('pop').classList.add('open'); $('plus').classList.add('open'); $('veil').hidden = false; $('veil').classList.add('dim');
+  if (!n) $('noteTitle').focus();
+}
+function closePop() {
+  $('pop').classList.remove('open'); $('plus').classList.remove('open'); $('veil').hidden = true; $('veil').classList.remove('dim');
+  $('colors').hidden = true; editing = null;
+  document.activeElement && document.activeElement.blur();
+}
+function save() {
+  const title = $('noteTitle').value.trim(), body = $('noteBody').value.trim();
+  if (title || body) { liveSave(); render(); }
+  else if (editing) {
+    if (isNew) dropNew();
+    else { Object.assign(editing, orig); removeNotes([editing]); }
+  }
+  closePop();
+}
+function del() {
+  if (editing) { if (isNew) dropNew(); else removeNotes([editing]); }
+  closePop();
+}
+
+for (const c of COLORS) {
+  const s = document.createElement('button');
+  s.type = 'button'; s.className = 'sw'; s.dataset.c = c; s.style.setProperty('--c', c === COLORS[0] ? 'var(--sheet)' : c);
+  s.setAttribute('aria-label', 'Color'); s.onclick = () => { setColor(c); $('colors').hidden = true; };
+  $('colors').append(s);
+}
+
+$('openBtn').onclick = () => {
+  $('openBtn').classList.add('go');
+  setTimeout(() => {
+    $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('exitBtn').hidden = false;
+  }, 260);
+};
+
+let inv = false;
+try { inv = !!localStorage.getItem(KEY + '-inv'); } catch (e) {}
+function setInv(on) {
+  inv = on; document.documentElement.toggleAttribute('data-inv', on);
+  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = on ? '#141413' : '#fdfaf0';
+  if (CAP.SystemBars) CAP.SystemBars.setStyle({ style: on ? 'DARK' : 'LIGHT' }).catch(() => {});
+  try { localStorage.setItem(KEY + '-inv', on ? '1' : ''); } catch (e) {}
+}
+setInv(inv);
+function closeMenu() { $('menu').hidden = true; $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); }
+function closeAll() { closePop(); closeMenu(); }
+$('invBtn').onclick = $('mInv').onclick = () => setInv(!inv);
+$('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open) { $('mUndo').disabled = !undo;
+  $('undoHint').textContent = undoText();
+  $('menu').hidden = false; $('veil').hidden = false; } };
+$('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
+$('mUndo').onclick = () => { undoDelete(); closeAll(); };
+$('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
+$('veil').onclick = () => { if ($('pop').classList.contains('open')) save(); closeAll(); };
+$('exitBtn').onclick = () => {
+  closeAll(); $('openBtn').classList.remove('go');
+  $('main').classList.add('off'); $('start').classList.remove('off');
+  $('plus').hidden = true; $('gear').hidden = true; $('exitBtn').hidden = true;
+};
+$('saveBtn').onclick = save;
+{
+  const tb = $('trashBtn'); let holdT, hintT;
+  const start = () => { clearTimeout(holdT); tb.classList.add('holding'); holdT = setTimeout(() => { tb.classList.remove('holding'); del(); }, 900); };
+  const stop = () => {
+    if (!tb.classList.contains('holding')) return;
+    clearTimeout(holdT); tb.classList.remove('holding');
+    $('trashHint').classList.add('show'); clearTimeout(hintT); hintT = setTimeout(() => $('trashHint').classList.remove('show'), 1600);
+  };
+  tb.onpointerdown = e => { try { tb.setPointerCapture(e.pointerId); } catch (err) {} start(); };
+  tb.onpointerup = tb.onpointercancel = stop;
+  tb.oncontextmenu = e => e.preventDefault();
+  tb.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); start(); } };
+  tb.onkeyup = e => { if (e.key === 'Enter' || e.key === ' ') stop(); };
+}
+$('noteTitle').addEventListener('input', liveSave);
+$('noteBody').addEventListener('input', liveSave);
+$('lobbyLang').onclick = () => { $('lobbyLangList').hidden = !$('lobbyLangList').hidden; };
+$('start').addEventListener('click', e => { if (!e.target.closest('#lobbyLang, #lobbyLangList')) $('lobbyLangList').hidden = true; });
+$('thanksBtn').onclick = () => { window.open('https://backofmind.threadless.com/', '_blank', 'noopener'); };
+$('starBtn').onclick = () => setStar(!star);
+$('delBtn').onclick = del;
+$('colorBtn').onclick = () => { $('colors').hidden = !$('colors').hidden; };
+document.addEventListener('keydown', e => {
+  if (!$('pop').classList.contains('open')) return;
+  if (e.key === 'Escape') { if (editing) save(); else closePop(); }
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) save();
+});
+let skip = false;
+try { skip = !!localStorage.getItem(KEY + '-skip'); } catch (e) {}
+$('skipChk').checked = skip;
+$('numsChk').checked = nums;
+$('numsChk').onchange = () => { nums = $('numsChk').checked; try { localStorage.setItem(KEY + '-nums', nums ? '1' : ''); } catch (e) {} render(); };
+$('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
+if (skip) {
+  $('start').style.transition = 'none';
+  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('exitBtn').hidden = false;
+  setTimeout(() => { $('start').style.transition = ''; }, 50);
+}
+applyLang();
+render();
+
+// Keyboard: tell the layout how much of the screen is visible.
+if (window.visualViewport) {
+  const vv = window.visualViewport, root = document.documentElement;
+  const fit = () => { root.style.setProperty('--vvh', vv.height + 'px'); root.style.setProperty('--vvt', vv.offsetTop + 'px'); };
+  vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
+}
+
+// Android back button: close what is open, then the lobby, then leave the app.
+if (CAP.App) {
+  CAP.App.addListener('backButton', () => {
+    if ($('pop').classList.contains('open')) { save(); closeAll(); return; }
+    if (!$('menu').hidden) { closeAll(); return; }
+    if (!$('main').classList.contains('off') && !$('skipChk').checked) { $('exitBtn').onclick(); return; }
+    CAP.App.minimizeApp();
+  });
+}
+
+// Website version (iPhone home-screen app): work offline, ask the browser to keep the notes.
+if (!window.Capacitor) {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios && !standalone) {
+    $('installHint').hidden = false;
+    $('installHintX').onclick = () => { $('installHint').hidden = true; };
+  }
+}
+})();
+</script>
+
+</body>
+</html>
