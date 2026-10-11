@@ -1,6 +1,6 @@
 // Back of Mind offline support. Keeps a copy of the app's files on the device so it
 // opens without a connection. It never touches notes and never sends anything.
-const CACHE = 'bom-1.0.0-5b3ce8ade8';
+const CACHE = 'bom-1.0.0-646d05f4e4';
 const SHELL = ["./", "index.html", "logo.webp", "fonts/hanken-grotesk.woff2", "fonts/atkinson-hyperlegible-700.woff2", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

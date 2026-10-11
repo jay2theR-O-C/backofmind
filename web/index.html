@@ -93,10 +93,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #langList .opt[aria-checked="true"] { font-weight: 600; }
 #langList .opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
 #menu .item:active { background: var(--line); }
-#mSkip, #mNums { cursor: pointer; align-items: center; }
+#mSkip, #mNums, #mRand { cursor: pointer; align-items: center; }
 .note[data-num]::after { content: attr(data-num); position: absolute; top: 5px; right: 8px; font-size: 10px; font-weight: 600; opacity: .5; font-variant-numeric: tabular-nums; }
 .note[data-num] > :first-child { padding-right: 14px; }
-#skipChk, #numsChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+#skipChk, #numsChk, #randChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
 #openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
@@ -120,7 +120,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .note.held { transform: scale(1.6); z-index: 1; box-shadow: var(--shadow); }
 .note h3 { margin: 0; font-family: "Atkinson Hyperlegible", var(--font); font-size: 14.5px; font-weight: 700; line-height: 1.25; letter-spacing: .01em; overflow-wrap: anywhere; padding-bottom: 5px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .note h3 .st { margin-right: 4px; }
-.note h3 .st svg { width: .9em; height: .9em; vertical-align: -.08em; }
+.note h3 .st svg { width: 1.2em; height: 1.2em; vertical-align: -.2em; }
 .note h3:only-child { padding-bottom: 0; border-bottom: 0; }
 .note { color: var(--on-tint); }
 .note.plain { color: var(--ink); }
@@ -159,32 +159,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #trashHint.show { opacity: .7; }
 #delBtn { font-size: 14px; padding: 9px 26px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); opacity: .85; }
 
-.note, #pop { --sheen: rgba(255, 255, 255, .95); }
-.note.plain, #pop.plain { --sheen: rgba(222, 176, 58, .6); }
-:root[data-inv] .note.plain, :root[data-inv] #pop.plain { --sheen: rgba(255, 255, 255, .34); }
-.note { --edge: 16px; }
-#pop { --edge: 30px; }
-.starred { isolation: isolate; }
-.starred::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, #000, transparent var(--edge)), linear-gradient(to left, #000, transparent var(--edge)), linear-gradient(to bottom, #000, transparent var(--edge)), linear-gradient(to top, #000, transparent var(--edge));
-  mask-image: linear-gradient(to right, #000, transparent var(--edge)), linear-gradient(to left, #000, transparent var(--edge)), linear-gradient(to bottom, #000, transparent var(--edge)), linear-gradient(to top, #000, transparent var(--edge));
-  background-image:
-    radial-gradient(circle, var(--sheen) 0 1.4px, transparent 2.6px),
-    radial-gradient(circle, var(--sheen) 0 .9px, transparent 2px),
-    radial-gradient(circle, var(--sheen) 0 2.2px, transparent 3.8px);
-  background-size: 23px 29px, 17px 19px, 37px 31px;
-  background-position: 0 0, 6px 10px, 15px 4px;
-  animation: drift 12s linear infinite;
-}
-@keyframes drift { to { background-position: 23px -58px, -28px -28px, 52px -58px; } }
-@media (prefers-reduced-motion: reduce) { .starred::before { animation: none; } }
+.note.starred { border: 2px solid color-mix(in srgb, currentColor 88%, transparent); box-shadow: 3px 3px 0 color-mix(in srgb, currentColor 88%, transparent); }
+#pop.starred { border: 2px solid color-mix(in srgb, currentColor 88%, transparent); }
 #starBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
 #starBtn[aria-pressed="true"] svg { fill: currentColor; }
-#colorBtn { position: absolute; top: 10px; right: 50px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f6d9d2, #fbe9a8, #d6ecd0, #d3e4f5, #e3d9f2, #f6d9d2); }
-#colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--sheet); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
-.sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,.14); background: var(--c); }
-.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 3.5px var(--ink); }
+#colorBtn { position: absolute; top: 10px; right: 50px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f3bcb3, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f3bcb3); }
+#colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
+.sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); background: var(--c); }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -210,7 +192,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <div id="pop" role="dialog" data-ta="note" aria-label="Note">
   <button id="colorBtn" type="button" data-ta="noteColor" aria-label="Note color"></button>
   <button id="starBtn" type="button" data-ta="star" aria-label="Star" aria-pressed="false">
-    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>
+    <svg width="27" height="27" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>
   </button>
   <div id="colors" hidden></div>
   <input id="noteTitle" type="text" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off">
@@ -233,6 +215,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   <div id="langList" role="radiogroup" hidden></div>
   <label id="mSkip" class="item"><span data-t="skipLobby">Skip lobby page</span><input id="skipChk" type="checkbox"></label>
   <label id="mNums" class="item"><span data-t="orderNums">Show order numbers</span><input id="numsChk" type="checkbox"></label>
+  <label id="mRand" class="item"><span data-t="randColor">Random color for new notes</span><input id="randChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
 </div>
@@ -288,19 +271,19 @@ const STR = {
     open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
     noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', cancel: 'Cancel', save: 'Save',
     settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
-    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', randColor: 'Random color for new notes', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
     star: 'Pin', backLobby: 'Back to lobby', backStart: 'Back to start screen',
     tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
     merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
     merch: 'See the merch', merchSoon: 'Merch coming soon', concept: 'Concept page. The real website will replace this.'
   },
-  'en-GB': { invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
+  'en-GB': { randColor: 'Random colour for new notes', invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
   'fi': {
     installHint: 'Jotta muistiinpanosi säilyvät, lisää sovellus Koti-valikkoon: napauta Jaa ja valitse ”Lisää Koti-valikkoon”.',
     open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
     noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', cancel: 'Peruuta', save: 'Tallenna',
     settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
-    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', randColor: 'Satunnainen väri uusille muistiinpanoille', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
     star: 'Kiinnitä', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
     tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
     merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
@@ -345,16 +328,21 @@ for (const L of LANGS) {
   $('lobbyLangList').append(o);
 }
 function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); }
-const COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
-let nums = false;
+const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f3bcb3', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
+const OLD_COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
+const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; };
+let nums = false, rand = false;
+try { rand = !!localStorage.getItem(KEY + '-rand'); } catch (e) {}
 try { nums = !!localStorage.getItem(KEY + '-nums'); } catch (e) {}
 let notes = [];
 try { notes = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
+notes.forEach(newColor);
 let editing = null, color = COLORS[0];
 
 function store() { try { localStorage.setItem(KEY, JSON.stringify(notes)); } catch (e) {} }
 let undo = null;
 try { undo = JSON.parse(localStorage.getItem(KEY + '-undo')) || null; } catch (e) {}
+if (undo) undo.forEach(u => newColor(u[1]));
 function saveUndo() { try { localStorage.setItem(KEY + '-undo', JSON.stringify(undo)); } catch (e) {} }
 function removeNotes(list) {
   const gone = list.map(n => [notes.indexOf(n), n]).filter(u => u[0] >= 0).sort((a, b) => a[0] - b[0]);
@@ -439,10 +427,10 @@ function dropNew() { notes = notes.filter(n => n !== editing); store(); render()
 function openPop(n) {
   editing = n || null; isNew = !n; orig = n ? Object.assign({}, n) : null;
   $('pop').classList.add('center');
-  $('delBtn').hidden = !!n; $('trashBtn').hidden = !n; $('trashHint').classList.remove('show');
+  $('delBtn').hidden = !!n; $('saveBtn').hidden = !!n; $('trashBtn').hidden = !n; $('trashHint').classList.remove('show');
   $('noteTitle').value = n ? n.title : '';
   $('noteBody').value = n ? n.body : '';
-  setColor(n ? n.color : COLORS[0]);
+  setColor(n ? n.color : rand ? COLORS[1 + Math.floor(Math.random() * (COLORS.length - 1))] : COLORS[0]);
   setStar(n ? !!n.star : false);
   $('colors').hidden = true;
   $('pop').classList.add('open'); $('plus').classList.add('open'); $('veil').hidden = false; $('veil').classList.add('dim');
@@ -537,6 +525,8 @@ let skip = false;
 try { skip = !!localStorage.getItem(KEY + '-skip'); } catch (e) {}
 $('skipChk').checked = skip;
 $('numsChk').checked = nums;
+$('randChk').checked = rand;
+$('randChk').onchange = () => { rand = $('randChk').checked; try { localStorage.setItem(KEY + '-rand', rand ? '1' : ''); } catch (e) {} };
 $('numsChk').onchange = () => { nums = $('numsChk').checked; try { localStorage.setItem(KEY + '-nums', nums ? '1' : ''); } catch (e) {} render(); };
 $('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
 if (skip) {
