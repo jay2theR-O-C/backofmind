@@ -19,3 +19,7 @@ p { margin: 0; color: var(--soft); }
 .btn small { font-weight: 400; font-size: 12px; opacity: .75; }
 footer { padding: 24px; text-align: center; font-size: 14px; color: var(--soft); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; }
 a { color: inherit; }
+.phone { width: min(270px, 70%); margin: 22px 0 10px; border: 9px solid #141414; border-radius: 38px; overflow: hidden; background: #141414; box-shadow: 0 18px 50px rgba(0,0,0,.28); outline: 1px solid var(--line); }
+.phone img { display: block; width: 100%; height: auto; border-radius: 29px; }
+.btn.go { cursor: pointer; text-decoration: none; }
+.btn.go:active { transform: scale(.97); }
