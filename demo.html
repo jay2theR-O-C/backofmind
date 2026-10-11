@@ -80,8 +80,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #langList .opt[aria-checked="true"] { font-weight: 600; }
 #langList .opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--ink-soft); }
 #menu .item:active { background: var(--line); }
-#mSkip { cursor: pointer; align-items: center; }
-#skipChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+#mSkip, #mNums { cursor: pointer; align-items: center; }
+.note[data-num]::after { content: attr(data-num); position: absolute; top: 5px; right: 8px; font-size: 10px; font-weight: 600; opacity: .5; font-variant-numeric: tabular-nums; }
+.note[data-num] > :first-child { padding-right: 14px; }
+#skipChk, #numsChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
 #openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
@@ -104,7 +106,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .note:nth-child(3n) { transform-origin: 100% 50%; }
 .note.held { transform: scale(1.6); z-index: 1; box-shadow: var(--shadow); }
 .note h3 { margin: 0; font-family: "Atkinson Hyperlegible", var(--font); font-size: 14.5px; font-weight: 700; line-height: 1.25; letter-spacing: .01em; overflow-wrap: anywhere; padding-bottom: 5px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
-.note h3 .st { margin-right: 4px; font-size: .92em; }
+.note h3 .st { margin-right: 4px; }
+.note h3 .st svg { width: .9em; height: .9em; vertical-align: -.08em; }
 .note h3:only-child { padding-bottom: 0; border-bottom: 0; }
 .note { color: var(--on-tint); }
 .note.plain { color: var(--ink); }
@@ -120,7 +123,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 /* Popup */
 #veil { position: fixed; inset: 0; z-index: 2; }
-#pop { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100% - 32px)); transform: translateX(-50%) translateY(10px) scale(.96); transform-origin: 50% 100%; opacity: 0; pointer-events: none; transition: opacity .16s ease, transform .16s ease, background .15s ease; background: var(--c, var(--sheet)); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 14px; z-index: 3; display: flex; flex-direction: column; gap: 8px; }
+#veil.dim { z-index: 5; background: rgba(20, 20, 20, .42); }
+:root[data-inv] #veil.dim { background: rgba(0, 0, 0, .6); }
+#pop { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100% - 32px)); transform: translateX(-50%) translateY(10px) scale(.96); transform-origin: 50% 100%; opacity: 0; pointer-events: none; transition: opacity .16s ease, transform .16s ease, background .15s ease; background: var(--c, var(--sheet)); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 14px; z-index: 6; display: flex; flex-direction: column; gap: 8px; }
 #pop.open { opacity: 1; pointer-events: auto; transform: translateX(-50%); }
 #pop.center { bottom: auto; top: 50%; transform: translate(-50%, -48%) scale(.96); transform-origin: 50% 50%; }
 #pop.center.open { transform: translate(-50%, -50%); }
@@ -130,9 +135,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #noteBody { font-size: 14px; line-height: 1.45; height: 130px; }
 #noteTitle::placeholder, #noteBody::placeholder { color: color-mix(in srgb, currentColor 35%, transparent); }
 #noteTitle:focus-visible, #noteBody:focus-visible { outline: none; }
-.actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(0,0,0,.07); padding-top: 10px; }
+.actions { display: flex; align-items: center; justify-content: center; gap: 12px; border-top: 1px solid rgba(0,0,0,.07); padding-top: 10px; position: relative; min-height: 52px; }
 #saveBtn { background: var(--pi); color: var(--pb); border-radius: 999px; padding: 9px 26px; font-size: 14px; font-weight: 500; }
-#delBtn { font-size: 12px; opacity: .65; padding: 6px 8px; border-radius: 999px; }
+#trashBtn { position: relative; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#trashBtn .ring { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); pointer-events: none; }
+#trashBtn .ring circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-dasharray: 151; stroke-dashoffset: 151; transition: stroke-dashoffset .18s ease-out; }
+#trashBtn.holding .ring circle { stroke-dashoffset: 0; transition: stroke-dashoffset .9s linear; }
+#trashBtn.holding { transform: scale(.94); }
+#trashHint { position: absolute; left: calc(50% + 38px); top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0; transition: opacity .2s ease; pointer-events: none; white-space: nowrap; }
+#trashHint.show { opacity: .7; }
+#delBtn { font-size: 14px; padding: 9px 26px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); opacity: .85; }
 
 .note, #pop { --sheen: rgba(255, 255, 255, .95); }
 .note.plain, #pop.plain { --sheen: rgba(222, 176, 58, .6); }
@@ -184,14 +196,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <div id="pop" role="dialog" data-ta="note" aria-label="Note">
   <button id="colorBtn" type="button" data-ta="noteColor" aria-label="Note color"></button>
   <button id="starBtn" type="button" data-ta="star" aria-label="Star" aria-pressed="false">
-    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M10 2.5l2.3 4.8 5.2.7-3.8 3.6.9 5.2-4.6-2.5-4.6 2.5.9-5.2L2.5 8l5.2-.7z"/></svg>
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>
   </button>
   <div id="colors" hidden></div>
   <input id="noteTitle" type="text" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off">
   <textarea id="noteBody" data-tp="note" placeholder="Note"></textarea>
   <div class="actions">
-    <button id="delBtn" type="button" data-t="del">Delete</button>
-    <button id="saveBtn" type="button" data-t="save">Save</button>
+    <button id="delBtn" type="button" data-t="cancel">Cancel</button>
+    <button id="trashBtn" type="button" data-ta="holdDelete" aria-label="Hold to delete" hidden>
+      <svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/></svg>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5h13M8 5.5V3.5h4v2M5.5 5.5l.8 11h7.4l.8-11M8.5 8.5v5M11.5 8.5v5"/></svg>
+    </button>
+    <span id="trashHint" data-t="holdDelete">Hold to delete</span>
+    <button id="saveBtn" type="button" data-t="save" hidden>Save</button>
   </div>
 </div>
 <div id="menu" hidden>
@@ -201,6 +218,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   <button id="mLang" class="item" type="button"><span data-t="language">Language</span><span class="val"><span id="langFlag" class="flag"></span><span id="langName">English</span></span></button>
   <div id="langList" role="radiogroup" hidden></div>
   <label id="mSkip" class="item"><span data-t="skipLobby">Skip lobby page</span><input id="skipChk" type="checkbox"></label>
+  <label id="mNums" class="item"><span data-t="orderNums">Show order numbers</span><input id="numsChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
 </div>
@@ -216,6 +234,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 <script>
 const $ = id => document.getElementById(id);
+const PIN = '<svg viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>';
 const KEY = 'back-of-mind-notes';
 /* Translations: add a language by adding an entry to LANGS and a table to STR. Missing keys fall back to en-US. */
 const FLAG = {
@@ -231,10 +250,10 @@ const LANGS = [
 const STR = {
   'en-US': {
     open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
-    noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', save: 'Save',
+    noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', cancel: 'Cancel', save: 'Save',
     settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
-    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', skipLobby: 'Skip lobby page', newNote: 'New note',
-    star: 'Star', backLobby: 'Back to lobby', backStart: 'Back to start screen',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
+    star: 'Pin', backLobby: 'Back to lobby', backStart: 'Back to start screen',
     tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
     merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
     merch: 'See the merch', merchSoon: 'Merch coming soon', concept: 'Concept page. The real website will replace this.'
@@ -242,10 +261,10 @@ const STR = {
   'en-GB': { invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
   'fi': {
     open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
-    noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', save: 'Tallenna',
+    noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', cancel: 'Peruuta', save: 'Tallenna',
     settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
-    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
-    star: 'Tähti', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
+    star: 'Kiinnitä', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
     tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
     merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
     merch: 'Katso tuotteet', merchSoon: 'Tuotteet tulossa pian', concept: 'Konseptisivu. Oikea verkkosivusto korvaa tämän.'
@@ -290,6 +309,8 @@ for (const L of LANGS) {
 }
 function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); }
 const COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
+let nums = false;
+try { nums = !!localStorage.getItem(KEY + '-nums'); } catch (e) {}
 let notes = [];
 try { notes = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
 let editing = null, color = COLORS[0];
@@ -314,13 +335,15 @@ function undoDelete() {
 function render() {
   const grid = $('grid');
   grid.textContent = '';
+  let idx = 0;
   for (const n of notes.filter(n => n.star).concat(notes.filter(n => !n.star))) {
     const b = document.createElement('button');
     b.type = 'button'; b.className = n.star ? 'note starred' : 'note';
+    if (nums) b.dataset.num = ++idx;
     if (n.color === COLORS[0]) b.classList.add('plain'); else b.style.setProperty('--c', n.color);
     if (n.title || n.star) {
       const h = document.createElement('h3'); h.textContent = n.title;
-      if (n.star) { const s = document.createElement('span'); s.className = 'st'; s.textContent = '★'; h.prepend(s); }
+      if (n.star) { const s = document.createElement('span'); s.className = 'st'; s.innerHTML = PIN; h.prepend(s); }
       b.append(h);
     }
     if (n.body) { const p = document.createElement('p'); p.textContent = n.body; b.append(p); }
@@ -358,39 +381,52 @@ function setColor(c) {
   $('pop').classList.toggle('plain', plain);
   if (plain) $('pop').style.removeProperty('--c'); else $('pop').style.setProperty('--c', c);
   document.querySelectorAll('.sw').forEach(s => s.setAttribute('aria-pressed', s.dataset.c === c));
+  liveSave();
 }
 
 let star = false;
 function setStar(v) {
   star = v; $('pop').classList.toggle('starred', v); $('starBtn').setAttribute('aria-pressed', v);
+  liveSave();
 }
+let isNew = false, orig = null;
+function liveSave() {
+  if (!$('pop').classList.contains('open')) return;
+  const title = $('noteTitle').value.trim(), body = $('noteBody').value.trim();
+  if (!(title || body)) return;
+  if (editing) Object.assign(editing, { title, body, color, star });
+  else { editing = { id: Date.now(), title, body, color, star }; notes.unshift(editing); }
+  store();
+}
+function dropNew() { notes = notes.filter(n => n !== editing); store(); render(); }
 function openPop(n) {
-  editing = n || null;
-  $('pop').classList.toggle('center', !!n);
+  editing = n || null; isNew = !n; orig = n ? Object.assign({}, n) : null;
+  $('pop').classList.add('center');
+  $('delBtn').hidden = !!n; $('trashBtn').hidden = !n; $('trashHint').classList.remove('show');
   $('noteTitle').value = n ? n.title : '';
   $('noteBody').value = n ? n.body : '';
   setColor(n ? n.color : COLORS[0]);
   setStar(n ? !!n.star : false);
   $('colors').hidden = true;
-  $('pop').classList.add('open'); $('plus').classList.add('open'); $('veil').hidden = false;
+  $('pop').classList.add('open'); $('plus').classList.add('open'); $('veil').hidden = false; $('veil').classList.add('dim');
   if (!n) $('noteTitle').focus();
 }
 function closePop() {
-  $('pop').classList.remove('open'); $('plus').classList.remove('open'); $('veil').hidden = true;
+  $('pop').classList.remove('open'); $('plus').classList.remove('open'); $('veil').hidden = true; $('veil').classList.remove('dim');
   $('colors').hidden = true; editing = null;
   document.activeElement && document.activeElement.blur();
 }
 function save() {
   const title = $('noteTitle').value.trim(), body = $('noteBody').value.trim();
-  if (title || body) {
-    if (editing) Object.assign(editing, { title, body, color, star });
-    else notes.unshift({ id: Date.now(), title, body, color, star });
-    store(); render();
+  if (title || body) { liveSave(); render(); }
+  else if (editing) {
+    if (isNew) dropNew();
+    else { Object.assign(editing, orig); removeNotes([editing]); }
   }
   closePop();
 }
 function del() {
-  if (editing) removeNotes([editing]);
+  if (editing) { if (isNew) dropNew(); else removeNotes([editing]); }
   closePop();
 }
 
@@ -449,13 +485,29 @@ $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open)
 $('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
 $('mUndo').onclick = () => { undoDelete(); closeAll(); };
 $('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
-$('veil').onclick = closeAll;
+$('veil').onclick = () => { if ($('pop').classList.contains('open')) save(); closeAll(); };
 $('exitBtn').onclick = () => {
   closeAll(); $('openBtn').classList.remove('go');
   $('main').classList.add('off'); $('start').classList.remove('off');
   $('plus').hidden = true; $('gear').hidden = true; $('exitBtn').hidden = true;
 };
 $('saveBtn').onclick = save;
+{
+  const tb = $('trashBtn'); let holdT, hintT;
+  const start = () => { clearTimeout(holdT); tb.classList.add('holding'); holdT = setTimeout(() => { tb.classList.remove('holding'); del(); }, 900); };
+  const stop = () => {
+    if (!tb.classList.contains('holding')) return;
+    clearTimeout(holdT); tb.classList.remove('holding');
+    $('trashHint').classList.add('show'); clearTimeout(hintT); hintT = setTimeout(() => $('trashHint').classList.remove('show'), 1600);
+  };
+  tb.onpointerdown = e => { try { tb.setPointerCapture(e.pointerId); } catch (err) {} start(); };
+  tb.onpointerup = tb.onpointercancel = stop;
+  tb.oncontextmenu = e => e.preventDefault();
+  tb.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); start(); } };
+  tb.onkeyup = e => { if (e.key === 'Enter' || e.key === ' ') stop(); };
+}
+$('noteTitle').addEventListener('input', liveSave);
+$('noteBody').addEventListener('input', liveSave);
 $('lobbyLang').onclick = () => { $('lobbyLangList').hidden = !$('lobbyLangList').hidden; };
 $('start').addEventListener('click', e => { if (!e.target.closest('#lobbyLang, #lobbyLangList')) $('lobbyLangList').hidden = true; });
 $('thanksBtn').onclick = () => { location.href = './'; };
@@ -464,12 +516,14 @@ $('delBtn').onclick = del;
 $('colorBtn').onclick = () => { $('colors').hidden = !$('colors').hidden; };
 document.addEventListener('keydown', e => {
   if (!$('pop').classList.contains('open')) return;
-  if (e.key === 'Escape') closePop();
+  if (e.key === 'Escape') { if (editing) save(); else closePop(); }
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) save();
 });
 let skip = false;
 try { skip = !!localStorage.getItem(KEY + '-skip'); } catch (e) {}
 $('skipChk').checked = skip;
+$('numsChk').checked = nums;
+$('numsChk').onchange = () => { nums = $('numsChk').checked; try { localStorage.setItem(KEY + '-nums', nums ? '1' : ''); } catch (e) {} render(); };
 $('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
 if (skip) {
   $('start').style.transition = 'none';
