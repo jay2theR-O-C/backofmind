@@ -83,7 +83,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #mSkip, #mNums, #mRand { cursor: pointer; align-items: center; }
 .note[data-num]::after { content: attr(data-num); position: absolute; top: 5px; right: 8px; font-size: 10px; font-weight: 600; opacity: .5; font-variant-numeric: tabular-nums; }
 .note[data-num] > :first-child { padding-right: 14px; }
-#skipChk, #numsChk, #randChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+#tagPanel { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 0 2px; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); margin-top: 8px; }
+#tagPanel[hidden] { display: none; }
+.chip { font: inherit; font-size: 13px; line-height: 1; padding: 7px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); background: color-mix(in srgb, currentColor 7%, transparent); color: inherit; }
+.chip::after { content: ' \00d7'; opacity: .5; }
+#tagIn { flex: 1; min-width: 90px; font: inherit; font-size: 16px; padding: 5px 2px; border: 0; background: none; color: inherit; outline: none; }
+#tagIn::placeholder { color: inherit; opacity: .4; }
+.note .tags { margin-top: 6px; font-size: .78em; font-weight: 600; opacity: .62; overflow-wrap: anywhere; }
+#skipChk, #numsChk, #randChk, #tagsChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
 #openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
@@ -116,6 +123,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .note p { margin: 0; font-size: 11.5px; line-height: 1.4; opacity: .82; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
 #empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-faint); font-size: 13px; pointer-events: none; }
 
+#find { position: fixed; left: calc(50% - 82px); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
+#find[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+#findBar { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(92vw, 420px); z-index: 4; }
+#findBar[hidden] { display: none; }
+#qx { position: absolute; right: 4px; top: 4px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-soft); }
+#q { width: 100%; box-sizing: border-box; height: 44px; padding: 0 46px 0 18px; border-radius: 22px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; font-size: 16px; box-shadow: var(--shadow); outline: none; -webkit-appearance: none; appearance: none; }
+#q::-webkit-search-cancel-button { display: none; }
+#main.finding #grid { padding-top: calc(68px + env(safe-area-inset-top, 0px)); }
 #plus { position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow); z-index: 4; transition: transform .2s ease; }
 #plus svg { transition: transform .2s ease; }
 #plus.open svg { transform: rotate(45deg); }
@@ -131,26 +146,31 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #pop.center.open { transform: translate(-50%, -50%); }
 #pop.center #noteBody { height: min(240px, 40vh); }
 #noteTitle, #noteBody { width: 100%; box-sizing: border-box; border: 0; background: transparent; font-family: var(--font); color: inherit; resize: none; padding: 4px 2px; }
-#noteTitle { font-family: "Atkinson Hyperlegible", var(--font); font-size: 19px; font-weight: 700; padding-right: 84px; margin-top: 14px; padding-bottom: 9px; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); }
+#noteTitle { font-family: "Atkinson Hyperlegible", var(--font); font-size: 19px; font-weight: 700; line-height: 1.25; display: block; overflow: hidden; margin-top: 38px; padding-bottom: 9px; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); }
 #noteBody { font-size: 14px; line-height: 1.45; height: 130px; }
 #noteTitle::placeholder, #noteBody::placeholder { color: color-mix(in srgb, currentColor 35%, transparent); }
 #noteTitle:focus-visible, #noteBody:focus-visible { outline: none; }
 .actions { display: flex; align-items: center; justify-content: center; gap: 12px; border-top: 1px solid rgba(0,0,0,.07); padding-top: 10px; position: relative; min-height: 52px; }
 #saveBtn { background: var(--pi); color: var(--pb); border-radius: 999px; padding: 9px 26px; font-size: 14px; font-weight: 500; }
-#trashBtn { position: relative; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#closeBtn { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); }
+#closeBtn[hidden] { display: none; }
+#trashBtn { position: absolute; left: 0; top: 50%; margin-top: -21px; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 #trashBtn .ring { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); pointer-events: none; }
 #trashBtn .ring circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-dasharray: 151; stroke-dashoffset: 151; transition: stroke-dashoffset .18s ease-out; }
 #trashBtn.holding .ring circle { stroke-dashoffset: 0; transition: stroke-dashoffset .9s linear; }
 #trashBtn.holding { transform: scale(.94); }
-#trashHint { position: absolute; left: calc(50% + 38px); top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0; transition: opacity .2s ease; pointer-events: none; white-space: nowrap; }
+#trashBtn[hidden] { display: none; }
+#trashHint { position: absolute; left: 62px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0; transition: opacity .2s ease; pointer-events: none; white-space: nowrap; }
 #trashHint.show { opacity: .7; }
 #delBtn { font-size: 14px; padding: 9px 26px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); opacity: .85; }
 
-.note.starred { border: 2px solid color-mix(in srgb, currentColor 88%, transparent); box-shadow: 3px 3px 0 color-mix(in srgb, currentColor 88%, transparent); }
-#pop.starred { border: 2px solid color-mix(in srgb, currentColor 88%, transparent); }
-#starBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
+.note.starred { border: 1.5px solid color-mix(in srgb, currentColor 85%, transparent); box-shadow: inset 0 0 0 3px var(--paper); padding: 12px; border-radius: 14px; }
+#pop.starred { outline: 2px solid color-mix(in srgb, currentColor 85%, transparent); outline-offset: 3px; }
+:root[data-inv] .note.starred { border-color: var(--ink); }
+:root[data-inv] #pop.starred { outline-color: var(--ink); }
+#starBtn { position: absolute; top: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
 #starBtn[aria-pressed="true"] svg { fill: currentColor; }
-#colorBtn { position: absolute; top: 10px; right: 50px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f3bcb3, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f3bcb3); }
+#colorBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f3bcb3, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f3bcb3); }
 #colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
 .sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); background: var(--c); }
 .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
@@ -181,13 +201,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
     <svg width="27" height="27" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.2 2.5h5.6l-.9 5.1 3.1 3.4H5l3.1-3.4z"/><path d="M10 11v6.5"/></svg>
   </button>
   <div id="colors" hidden></div>
-  <input id="noteTitle" type="text" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off">
+  <textarea id="noteTitle" rows="1" data-tp="title" placeholder="Title" maxlength="80" autocomplete="off"></textarea>
   <textarea id="noteBody" data-tp="note" placeholder="Note"></textarea>
+  <div id="tagPanel" hidden><input id="tagIn" type="text" data-tp="tagPh" data-ta="tagPh" aria-label="Add tag" placeholder="#add tag" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   <div class="actions">
     <button id="delBtn" type="button" data-t="cancel">Cancel</button>
     <button id="trashBtn" type="button" data-ta="holdDelete" aria-label="Hold to delete" hidden>
       <svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/></svg>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5h13M8 5.5V3.5h4v2M5.5 5.5l.8 11h7.4l.8-11M8.5 8.5v5M11.5 8.5v5"/></svg>
+    </button>
+    <button id="closeBtn" type="button" data-ta="close" aria-label="Close" hidden>
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
     </button>
     <span id="trashHint" data-t="holdDelete">Hold to delete</span>
     <button id="saveBtn" type="button" data-t="save" hidden>Save</button>
@@ -201,13 +225,18 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   <div id="langList" role="radiogroup" hidden></div>
   <label id="mSkip" class="item"><span data-t="skipLobby">Skip lobby page</span><input id="skipChk" type="checkbox"></label>
   <label id="mNums" class="item"><span data-t="orderNums">Show order numbers</span><input id="numsChk" type="checkbox"></label>
-  <label id="mRand" class="item"><span data-t="randColor">Random color for new notes</span><input id="randChk" type="checkbox"></label>
+  <label id="mRand" class="item"><span data-t="randColor">Pick random colors for new notes</span><input id="randChk" type="checkbox"></label>
+  <label id="mTags" class="item"><span data-t="tagsOn">Enable tags</span><input id="tagsChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
 </div>
 <button id="exitBtn" type="button" data-ta="backStart" aria-label="Back to start screen" hidden>
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
 </button>
+<button id="find" type="button" data-ta="search" aria-label="Search" aria-pressed="false" hidden>
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8.8" cy="8.8" r="5.6"/><path d="M13 13l4.5 4.5"/></svg>
+</button>
+<div id="findBar" hidden><input id="q" type="search" data-tp="searchPh" data-ta="search" aria-label="Search" placeholder="Search notes" autocomplete="off" autocapitalize="off" spellcheck="false"><button id="qx" type="button" data-ta="close" aria-label="Close"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button></div>
 <button id="gear" type="button" data-ta="settings" aria-label="Settings" hidden>
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h14M3 14h14"/><circle cx="8" cy="6" r="2.2" fill="var(--sheet)"/><circle cx="12" cy="14" r="2.2" fill="var(--sheet)"/></svg>
 </button>
@@ -237,18 +266,18 @@ const STR = {
     open: 'Open', thanks: 'Back to website', invert: 'Invert colors', empty: 'Nothing here yet. Tap + to add a note.',
     noteColor: 'Note color', color: 'Color', title: 'Title', note: 'Note', del: 'Delete', cancel: 'Cancel', save: 'Save',
     settings: 'Settings', clear: 'Clear all notes', clearArmed: 'Tap again to clear',
-    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', randColor: 'Random color for new notes', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
+    undo: 'Undo delete', undoNone: 'Nothing to undo', undoMany: '{n} notes', language: 'Language', orderNums: 'Show order numbers', randColor: 'Pick random colors for new notes', close: 'Close', tagsOn: 'Enable tags', tagPh: '#add tag', search: 'Search', searchPh: 'Search notes', noMatch: 'No matching notes.', holdDelete: 'Hold to delete', skipLobby: 'Skip lobby page', newNote: 'New note',
     star: 'Pin', backLobby: 'Back to lobby', backStart: 'Back to start screen',
     tagline: 'The smallest notes app that works.', noAccount: 'No account', noAds: 'No ads', free: 'Free',
     merchText: 'The app is free and stays free. If you like it, grab a BOM sticker, tee or tote. Every piece of merch supports the developer.',
     merch: 'See the merch', merchSoon: 'Merch coming soon', concept: 'Concept page. The real website will replace this.'
   },
-  'en-GB': { randColor: 'Random colour for new notes', invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
+  'en-GB': { randColor: 'Pick random colours for new notes', invert: 'Invert colours', noteColor: 'Note colour', color: 'Colour' },
   'fi': {
     open: 'Avaa', thanks: 'Takaisin sivustolle', invert: 'Käännä värit', empty: 'Täällä ei ole vielä mitään. Lisää muistiinpano painamalla +.',
     noteColor: 'Muistiinpanon väri', color: 'Väri', title: 'Otsikko', note: 'Muistiinpano', del: 'Poista', cancel: 'Peruuta', save: 'Tallenna',
     settings: 'Asetukset', clear: 'Tyhjennä kaikki muistiinpanot', clearArmed: 'Vahvista napauttamalla uudelleen',
-    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', randColor: 'Satunnainen väri uusille muistiinpanoille', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
+    undo: 'Kumoa poisto', undoNone: 'Ei kumottavaa', undoMany: '{n} muistiinpanoa', language: 'Kieli', orderNums: 'Näytä järjestysnumerot', randColor: 'Valitse uusille muistiinpanoille satunnaiset värit', close: 'Sulje', tagsOn: 'Ota tunnisteet käyttöön', tagPh: '#lisää tunniste', search: 'Haku', searchPh: 'Hae muistiinpanoja', noMatch: 'Ei osumia.', holdDelete: 'Poista pitämällä pohjassa', skipLobby: 'Ohita aulasivu', newNote: 'Uusi muistiinpano',
     star: 'Kiinnitä', backLobby: 'Takaisin aulaan', backStart: 'Takaisin aloitusnäyttöön',
     tagline: 'Pienin muistiinpanosovellus, joka toimii.', noAccount: 'Ei tiliä', noAds: 'Ei mainoksia', free: 'Ilmainen',
     merchText: 'Sovellus on ilmainen ja pysyy ilmaisena. Jos pidät siitä, nappaa BOM-tarra, t-paita tai kangaskassi. Jokainen tuote tukee kehittäjää.',
@@ -292,11 +321,12 @@ for (const L of LANGS) {
   o.onclick = () => { setLang(L.id); $('lobbyLangList').hidden = true; };
   $('lobbyLangList').append(o);
 }
-function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); }
+function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); render(); }
 const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f3bcb3', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
 const OLD_COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
 const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; };
-let nums = false, rand = false;
+let nums = false, rand = false, tagsOn = false, tags = [];
+try { tagsOn = !!localStorage.getItem(KEY + '-tags'); } catch (e) {}
 try { rand = !!localStorage.getItem(KEY + '-rand'); } catch (e) {}
 try { nums = !!localStorage.getItem(KEY + '-nums'); } catch (e) {}
 let notes = [];
@@ -322,14 +352,23 @@ function undoDelete() {
   undo = null; saveUndo(); store(); render();
 }
 
+let query = '';
+function setFind(on) {
+  $('findBar').hidden = !on; $('find').setAttribute('aria-pressed', on); $('main').classList.toggle('finding', on);
+  if (on) $('q').focus(); else { $('q').value = ''; $('q').blur(); if (query) { query = ''; render(); } }
+}
 function render() {
   const grid = $('grid');
   grid.textContent = '';
   let idx = 0;
+  const ql = query.trim().toLowerCase(); let shown = 0;
   for (const n of notes.filter(n => n.star).concat(notes.filter(n => !n.star))) {
+    ++idx;
+    if (ql && !((n.title || '') + '\n' + (n.body || '') + (tagsOn && n.tags ? '\n#' + n.tags.join(' #') : '')).toLowerCase().includes(ql)) continue;
+    shown++;
     const b = document.createElement('button');
     b.type = 'button'; b.className = n.star ? 'note starred' : 'note';
-    if (nums) b.dataset.num = ++idx;
+    if (nums) b.dataset.num = idx;
     if (n.color === COLORS[0]) b.classList.add('plain'); else b.style.setProperty('--c', n.color);
     if (n.title || n.star) {
       const h = document.createElement('h3'); h.textContent = n.title;
@@ -337,6 +376,7 @@ function render() {
       b.append(h);
     }
     if (n.body) { const p = document.createElement('p'); p.textContent = n.body; b.append(p); }
+    if (tagsOn && n.tags && n.tags.length) { const d = document.createElement('div'); d.className = 'tags'; d.textContent = '#' + n.tags.join(' #'); b.append(d); }
     let timer, wasHeld = false, swiping = false, down = false, sx = 0, sy = 0, dx = 0;
     const release = () => { down = false; clearTimeout(timer); b.classList.remove('held'); b.style.transition = b.style.transform = b.style.opacity = ''; };
     b.onpointerdown = e => {
@@ -362,7 +402,8 @@ function render() {
     b.onclick = () => { if (!wasHeld && !swiping) openPop(n); };
     grid.append(b);
   }
-  $('empty').hidden = notes.length > 0;
+  $('empty').hidden = shown > 0;
+  $('empty').textContent = t(notes.length && ql ? 'noMatch' : 'empty');
 }
 
 function setColor(c) {
@@ -384,21 +425,39 @@ function liveSave() {
   if (!$('pop').classList.contains('open')) return;
   const title = $('noteTitle').value.trim(), body = $('noteBody').value.trim();
   if (!(title || body)) return;
-  if (editing) Object.assign(editing, { title, body, color, star });
-  else { editing = { id: Date.now(), title, body, color, star }; notes.unshift(editing); }
+  if (editing) Object.assign(editing, { title, body, color, star, tags });
+  else { editing = { id: Date.now(), title, body, color, star, tags }; notes.unshift(editing); }
   store();
+}
+function drawTags() {
+  $('tagPanel').hidden = !tagsOn;
+  $('tagPanel').querySelectorAll('.chip').forEach(c => c.remove());
+  for (const g of tags) {
+    const c = document.createElement('button');
+    c.type = 'button'; c.className = 'chip'; c.textContent = '#' + g;
+    c.onclick = () => { tags = tags.filter(x => x !== g); drawTags(); liveSave(); };
+    $('tagIn').before(c);
+  }
+}
+function addTag() {
+  const g = $('tagIn').value.replace(/[#,\s]+/g, '').slice(0, 24);
+  $('tagIn').value = '';
+  if (!g || tags.some(x => x.toLowerCase() === g.toLowerCase())) return;
+  tags = tags.concat(g); drawTags(); liveSave();
 }
 function dropNew() { notes = notes.filter(n => n !== editing); store(); render(); }
 function openPop(n) {
   editing = n || null; isNew = !n; orig = n ? Object.assign({}, n) : null;
   $('pop').classList.add('center');
-  $('delBtn').hidden = !!n; $('saveBtn').hidden = !!n; $('trashBtn').hidden = !n; $('trashHint').classList.remove('show');
+  $('delBtn').hidden = !!n; $('saveBtn').hidden = !!n; $('trashBtn').hidden = !n; $('closeBtn').hidden = !n; $('trashHint').classList.remove('show');
   $('noteTitle').value = n ? n.title : '';
   $('noteBody').value = n ? n.body : '';
   setColor(n ? n.color : rand ? COLORS[1 + Math.floor(Math.random() * (COLORS.length - 1))] : COLORS[0]);
   setStar(n ? !!n.star : false);
+  tags = n && n.tags ? n.tags.slice() : []; $('tagIn').value = ''; drawTags();
   $('colors').hidden = true;
   $('pop').classList.add('open'); $('plus').classList.add('open'); $('veil').hidden = false; $('veil').classList.add('dim');
+  lastTitle = ''; fitTitle();
   if (!n) $('noteTitle').focus();
 }
 function closePop() {
@@ -430,7 +489,7 @@ for (const c of COLORS) {
 $('openBtn').onclick = () => {
   $('openBtn').classList.add('go');
   setTimeout(() => {
-    $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('exitBtn').hidden = false;
+    $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('find').hidden = false; $('exitBtn').hidden = false;
   }, 260);
 };
 
@@ -474,12 +533,16 @@ $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open)
   $('menu').hidden = false; $('veil').hidden = false; } };
 $('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
 $('mUndo').onclick = () => { undoDelete(); closeAll(); };
+$('find').onclick = () => { closeMenu(); setFind($('findBar').hidden); };
+$('qx').onclick = () => setFind(false);
+$('q').oninput = () => { query = $('q').value; render(); };
+$('q').onkeydown = e => { if (e.key === 'Enter') $('q').blur(); if (e.key === 'Escape') setFind(false); };
 $('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
 $('veil').onclick = () => { if ($('pop').classList.contains('open')) save(); closeAll(); };
 $('exitBtn').onclick = () => {
   closeAll(); $('openBtn').classList.remove('go');
   $('main').classList.add('off'); $('start').classList.remove('off');
-  $('plus').hidden = true; $('gear').hidden = true; $('exitBtn').hidden = true;
+  $('plus').hidden = true; $('gear').hidden = true; $('find').hidden = true; setFind(false); $('exitBtn').hidden = true;
 };
 $('saveBtn').onclick = save;
 {
@@ -496,6 +559,19 @@ $('saveBtn').onclick = save;
   tb.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); start(); } };
   tb.onkeyup = e => { if (e.key === 'Enter' || e.key === ' ') stop(); };
 }
+let lastTitle = '';
+function fitTitle() {
+  const e = $('noteTitle'), cs = getComputedStyle(e);
+  const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth), two = Math.round(parseFloat(cs.lineHeight) * 2 + pad) + 1;
+  if (/[\r\n]/.test(e.value)) e.value = e.value.replace(/[\r\n]+/g, ' ');
+  e.style.height = 'auto';
+  if (e.scrollHeight + parseFloat(cs.borderBottomWidth) > two + 2 && e.value.length > lastTitle.length && lastTitle) { e.value = lastTitle; e.style.height = 'auto'; }
+  lastTitle = e.value;
+  e.style.height = Math.min(e.scrollHeight + parseFloat(cs.borderBottomWidth), two) + 'px';
+}
+$('noteTitle').addEventListener('input', fitTitle);
+$('noteTitle').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('noteBody').focus(); } });
+addEventListener('resize', () => { if ($('pop').classList.contains('open')) fitTitle(); });
 $('noteTitle').addEventListener('input', liveSave);
 $('noteBody').addEventListener('input', liveSave);
 $('lobbyLang').onclick = () => { $('lobbyLangList').hidden = !$('lobbyLangList').hidden; };
@@ -503,6 +579,7 @@ $('start').addEventListener('click', e => { if (!e.target.closest('#lobbyLang, #
 $('thanksBtn').onclick = () => { location.href = './'; };
 $('starBtn').onclick = () => setStar(!star);
 $('delBtn').onclick = del;
+$('closeBtn').onclick = () => $('veil').click();
 $('colorBtn').onclick = () => { $('colors').hidden = !$('colors').hidden; };
 document.addEventListener('keydown', e => {
   if (!$('pop').classList.contains('open')) return;
@@ -513,13 +590,18 @@ let skip = false;
 try { skip = !!localStorage.getItem(KEY + '-skip'); } catch (e) {}
 $('skipChk').checked = skip;
 $('numsChk').checked = nums;
+$('tagsChk').checked = tagsOn;
+$('tagsChk').onchange = () => { tagsOn = $('tagsChk').checked; try { localStorage.setItem(KEY + '-tags', tagsOn ? '1' : ''); } catch (e) {} render(); };
+$('tagIn').oninput = () => { if (/[\s,]$/.test($('tagIn').value)) addTag(); };
+$('tagIn').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } else if (e.key === 'Backspace' && !$('tagIn').value && tags.length) { tags = tags.slice(0, -1); drawTags(); liveSave(); } };
+$('tagIn').onblur = addTag;
 $('randChk').checked = rand;
 $('randChk').onchange = () => { rand = $('randChk').checked; try { localStorage.setItem(KEY + '-rand', rand ? '1' : ''); } catch (e) {} };
 $('numsChk').onchange = () => { nums = $('numsChk').checked; try { localStorage.setItem(KEY + '-nums', nums ? '1' : ''); } catch (e) {} render(); };
 $('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
 if (skip) {
   $('start').style.transition = 'none';
-  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('exitBtn').hidden = false;
+  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('find').hidden = false; $('exitBtn').hidden = false;
   setTimeout(() => { $('start').style.transition = ''; }, 50);
 }
 applyLang();
