@@ -66,7 +66,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #webBack { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; }
 #exitBtn { position: fixed; left: 16px; bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
 #gear { position: fixed; left: calc(50% + 42px); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
-#menu { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(440px, calc(100% - 32px)); box-sizing: border-box; background: var(--sheet); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); padding: 12px; z-index: 3; display: flex; flex-direction: column; }
+#menu { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(400px, calc(100% - 64px)); box-sizing: border-box; background: var(--sheet); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); padding: 12px; z-index: 3; display: flex; flex-direction: column; }
 #menu .item { text-align: left; padding: 18px 22px; font-size: 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
 #menu .mhead { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 22px 6px; }
 #menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 22px; }
@@ -93,6 +93,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #skipChk, #numsChk, #randChk, #tagsChk { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 #menu .item:disabled { opacity: .35; cursor: default; }
 #mInv { align-self: center; width: 46px; height: 46px; margin: 12px 0 8px; }
+#ver { align-self: center; font-size: 12px; letter-spacing: .06em; color: var(--ink-faint); padding-bottom: 4px; }
 #openBtn { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 20px 68px; font-size: 20px; font-weight: 500; letter-spacing: .02em; transition: transform .16s cubic-bezier(.3, 1.6, .5, 1); }
 #openBtn:active { transform: scale(.9); }
 #openBtn.go { animation: openPop .34s ease-out; }
@@ -106,12 +107,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .mark { position: absolute; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 11px; letter-spacing: .08em; color: var(--ink-faint); }
 
 /* Main */
-#main { overflow-y: auto; padding-inline: 16px; padding-block: 20px 140px; }
-#grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 720px; margin-inline: auto; align-items: start; }
-.note { text-align: left; border-radius: 12px; padding: 10px; background: var(--c, var(--sheet)); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; gap: 4px; position: relative; transition: transform .18s ease, box-shadow .18s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
+#main { overflow-y: auto; padding-inline: 5px; padding-block: 12px 140px; }
+#grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; max-width: 720px; margin-inline: auto; align-items: start; }
+.note { text-align: left; border-radius: 12px; padding: 8px; background: var(--c, var(--sheet)); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; gap: 4px; position: relative; transition: transform .18s ease, box-shadow .18s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
 .note:nth-child(3n+1) { transform-origin: 0 50%; }
 .note:nth-child(3n) { transform-origin: 100% 50%; }
-.note.held { transform: scale(1.6); z-index: 1; box-shadow: var(--shadow); }
+.note.held { opacity: .25; }
+.note.zoom { position: fixed; z-index: 8; pointer-events: none; box-shadow: var(--shadow); }
+.note.zoom p { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.note.zoom { overflow: hidden; }
 .note h3 { margin: 0; font-family: "Atkinson Hyperlegible", var(--font); font-size: 14.5px; font-weight: 700; line-height: 1.25; letter-spacing: .01em; overflow-wrap: anywhere; padding-bottom: 5px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .note h3 .st { margin-right: 4px; }
 .note h3 .st svg { width: 1.2em; height: 1.2em; vertical-align: -.2em; }
@@ -164,17 +168,22 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 #trashHint.show { opacity: .7; }
 #delBtn { font-size: 14px; padding: 9px 26px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); opacity: .85; }
 
-.note.starred { border: 1.5px solid color-mix(in srgb, currentColor 85%, transparent); box-shadow: inset 0 0 0 3px var(--paper); padding: 12px; border-radius: 14px; }
+.note.starred { border: 1.5px solid color-mix(in srgb, currentColor 85%, transparent); box-shadow: inset 0 0 0 3px var(--paper); padding: 10px; border-radius: 14px; }
 #pop.starred { outline: 2px solid color-mix(in srgb, currentColor 85%, transparent); outline-offset: 3px; }
 :root[data-inv] .note.starred { border-color: var(--ink); }
 :root[data-inv] #pop.starred { outline-color: var(--ink); }
 #starBtn { position: absolute; top: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
 #starBtn[aria-pressed="true"] svg { fill: currentColor; }
-#colorBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f3bcb3, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f3bcb3); }
+#colorBtn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); background: conic-gradient(#f29a8e, #f9de7a, #bfe3b4, #b5d3f2, #d3c2ef, #f29a8e); }
 #colors { position: absolute; top: 48px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px; max-width: calc(100% - 16px); box-sizing: border-box; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); z-index: 1; }
 .sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); background: var(--c); }
 .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
 
+#menu .mhead { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 4px 22px; }
+#menuClose { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-soft); border: 1px solid var(--line); }
+#colorBtn { touch-action: none; }
+.sw { transition: transform .08s ease; }
+.sw.hot { transform: scale(1.22); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -218,7 +227,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   </div>
 </div>
 <div id="menu" hidden>
-  <div class="mhead" data-t="settings">Settings</div>
+  <div class="mhead"><span data-t="settings">Settings</span><button id="menuClose" type="button" data-ta="close" aria-label="Close"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
   <button id="mUndo" class="item" type="button"><span data-t="undo">Undo delete</span><span id="undoHint"></span></button>
   <hr>
   <button id="mLang" class="item" type="button"><span data-t="language">Language</span><span class="val"><span id="langFlag" class="flag"></span><span id="langName">English</span></span></button>
@@ -229,6 +238,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   <label id="mTags" class="item"><span data-t="tagsOn">Enable tags</span><input id="tagsChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
+  <div id="ver">Version 0.001</div>
 </div>
 <button id="exitBtn" type="button" data-ta="backStart" aria-label="Back to start screen" hidden>
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
@@ -322,9 +332,9 @@ for (const L of LANGS) {
   $('lobbyLangList').append(o);
 }
 function setLang(id) { lang = id; try { localStorage.setItem(KEY + '-lang', id); } catch (e) {} applyLang(); render(); }
-const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f3bcb3', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
+const COLORS = ['#fffdf7', '#f9de7a', '#f6c79f', '#f29a8e', '#bfe3b4', '#b5d3f2', '#d3c2ef'];
 const OLD_COLORS = ['#fffdf7', '#fbe9a8', '#f8dcc4', '#f6d9d2', '#d6ecd0', '#d3e4f5', '#e3d9f2'];
-const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; };
+const newColor = n => { const i = OLD_COLORS.indexOf(n.color); if (i > 0) n.color = COLORS[i]; if (n.color === '#f3bcb3') n.color = COLORS[3]; };
 let nums = false, rand = false, tagsOn = false, tags = [];
 try { tagsOn = !!localStorage.getItem(KEY + '-tags'); } catch (e) {}
 try { rand = !!localStorage.getItem(KEY + '-rand'); } catch (e) {}
@@ -350,6 +360,25 @@ function undoDelete() {
   if (!undo) return;
   for (const [i, n] of undo) notes.splice(Math.min(i, notes.length), 0, n);
   undo = null; saveUndo(); store(); render();
+}
+
+let zoomEl = null;
+function zoomOut() { if (zoomEl) { zoomEl.remove(); zoomEl = null; } }
+function zoomIn(b) {
+  zoomOut();
+  const r = b.getBoundingClientRect(), M = 8;
+  const c = b.cloneNode(true);
+  c.classList.add('zoom');
+  Object.assign(c.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', margin: '0', transformOrigin: '0 0' });
+  document.body.append(c); zoomEl = c;
+  const w = c.offsetWidth, h = c.offsetHeight, vw = innerWidth, vh = innerHeight;
+  const s = Math.max(.75, Math.min(1.6, (vw - 2 * M) / w, (vh - 2 * M) / h));
+  const maxH = (vh - 2 * M) / s;
+  c.style.maxHeight = maxH + 'px';
+  const w2 = w * s, h2 = Math.min(h, maxH) * s;
+  const x = Math.min(Math.max(r.left + w / 2 - w2 / 2, M), vw - M - w2);
+  const y = Math.min(Math.max(r.top + r.height / 2 - h2 / 2, M), vh - M - h2);
+  c.style.transform = 'translate(' + (x - r.left) + 'px,' + (y - r.top) + 'px) scale(' + s + ')';
 }
 
 let query = '';
@@ -378,11 +407,11 @@ function render() {
     if (n.body) { const p = document.createElement('p'); p.textContent = n.body; b.append(p); }
     if (tagsOn && n.tags && n.tags.length) { const d = document.createElement('div'); d.className = 'tags'; d.textContent = '#' + n.tags.join(' #'); b.append(d); }
     let timer, wasHeld = false, swiping = false, down = false, sx = 0, sy = 0, dx = 0;
-    const release = () => { down = false; clearTimeout(timer); b.classList.remove('held'); b.style.transition = b.style.transform = b.style.opacity = ''; };
+    const release = () => { down = false; clearTimeout(timer); zoomOut(); b.classList.remove('held'); b.style.transition = b.style.transform = b.style.opacity = ''; };
     b.onpointerdown = e => {
       wasHeld = swiping = false; down = true; sx = e.clientX; sy = e.clientY; dx = 0;
       try { b.setPointerCapture(e.pointerId); } catch (err) {}
-      timer = setTimeout(() => { wasHeld = true; b.classList.add('held'); }, 300);
+      timer = setTimeout(() => { wasHeld = true; zoomIn(b); b.classList.add('held'); }, 300);
     };
     b.onpointermove = e => {
       if (!down || wasHeld) return;
@@ -528,6 +557,7 @@ setInv(inv);
 function closeMenu() { $('menu').hidden = true; $('langList').hidden = true; $('mLang').setAttribute('aria-expanded', false); }
 function closeAll() { closePop(); closeMenu(); }
 $('invBtn').onclick = $('mInv').onclick = () => setInv(!inv);
+$('menuClose').onclick = closeAll;
 $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open) { $('mUndo').disabled = !undo;
   $('undoHint').textContent = undoText();
   $('menu').hidden = false; $('veil').hidden = false; } };
@@ -580,7 +610,25 @@ $('thanksBtn').onclick = () => { location.href = './'; };
 $('starBtn').onclick = () => setStar(!star);
 $('delBtn').onclick = del;
 $('closeBtn').onclick = () => $('veil').click();
-$('colorBtn').onclick = () => { $('colors').hidden = !$('colors').hidden; };
+{
+  const cb = $('colorBtn'); let pressed = false, wasOpen = false, slid = false, last = null;
+  const unhot = () => document.querySelectorAll('.sw.hot').forEach(x => x.classList.remove('hot'));
+  cb.onpointerdown = e => {
+    pressed = true; slid = false; last = null; wasOpen = !$('colors').hidden;
+    try { cb.setPointerCapture(e.pointerId); } catch (err) {}
+    $('colors').hidden = false;
+  };
+  cb.onpointermove = e => {
+    if (!pressed) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY), sw = el && el.closest ? el.closest('.sw') : null;
+    unhot();
+    if (sw) { sw.classList.add('hot'); if (sw !== last) { last = sw; slid = true; setColor(sw.dataset.c); } }
+  };
+  cb.onpointerup = () => { pressed = false; unhot(); if (slid || wasOpen) $('colors').hidden = true; };
+  cb.onpointercancel = () => { pressed = false; unhot(); };
+  cb.oncontextmenu = e => e.preventDefault();
+  cb.onclick = e => { if (e.detail === 0) $('colors').hidden = !$('colors').hidden; };
+}
 document.addEventListener('keydown', e => {
   if (!$('pop').classList.contains('open')) return;
   if (e.key === 'Escape') { if (editing) save(); else closePop(); }
