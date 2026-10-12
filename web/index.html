@@ -142,12 +142,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 #find { position: fixed; left: calc(50% - 82px); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); color: var(--ink-soft); display: grid; place-items: center; z-index: 4; }
 #find[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-#findBar { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(92vw, 420px); z-index: 4; }
+#findBar { position: fixed; left: 50%; top: calc(8px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(56vw, 240px); z-index: 4; }
 #findBar[hidden] { display: none; }
-#qx { position: absolute; right: 4px; top: 4px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-soft); }
-#q { width: 100%; box-sizing: border-box; height: 44px; padding: 0 46px 0 18px; border-radius: 22px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; font-size: 16px; box-shadow: var(--shadow); outline: none; -webkit-appearance: none; appearance: none; }
+#qx[hidden] { display: none; }
+#qx { position: absolute; right: 2px; top: 2px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-soft); }
+#q { width: 100%; box-sizing: border-box; height: 32px; padding: 0 30px 0 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; font-size: 16px; box-shadow: var(--shadow); outline: none; -webkit-appearance: none; appearance: none; }
 #q::-webkit-search-cancel-button { display: none; }
-#main.finding #grid { padding-top: calc(68px + env(safe-area-inset-top, 0px)); }
+#main.finding #grid { padding-top: calc(34px + env(safe-area-inset-top, 0px)); }
 #plus { position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow); z-index: 4; transition: transform .2s ease; }
 #plus svg { transition: transform .2s ease; }
 #plus.open svg { transform: rotate(45deg); }
@@ -252,7 +253,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
   <label id="mTags" class="item"><span data-t="tagsOn">Enable tags</span><input id="tagsChk" type="checkbox"></label>
   <hr>
   <button id="mInv" class="inv" type="button" data-ta="invert" aria-label="Invert colors"></button>
-  <div id="ver">Version 0.001</div>
+  <div id="ver">Version 0.002</div>
 </div>
 <button id="exitBtn" type="button" data-ta="backStart" aria-label="Back to start screen" hidden>
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
@@ -260,7 +261,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <button id="find" type="button" data-ta="search" aria-label="Search" aria-pressed="false" hidden>
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8.8" cy="8.8" r="5.6"/><path d="M13 13l4.5 4.5"/></svg>
 </button>
-<div id="findBar" hidden><input id="q" type="search" data-tp="searchPh" data-ta="search" aria-label="Search" placeholder="Search notes" autocomplete="off" autocapitalize="off" spellcheck="false"><button id="qx" type="button" data-ta="close" aria-label="Close"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button></div>
+<div id="findBar" hidden><input id="q" type="search" data-tp="searchPh" data-ta="search" aria-label="Search" placeholder="Search notes" autocomplete="off" autocapitalize="off" spellcheck="false"><button id="qx" type="button" data-ta="close" aria-label="Close" hidden><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button></div>
 <button id="gear" type="button" data-ta="settings" aria-label="Settings" hidden>
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h14M3 14h14"/><circle cx="8" cy="6" r="2.2" fill="var(--sheet)"/><circle cx="12" cy="14" r="2.2" fill="var(--sheet)"/></svg>
 </button>
@@ -417,9 +418,10 @@ function zoomIn(b) {
 }
 
 let query = '';
+function clearFind() { $('q').value = ''; $('qx').hidden = true; if (query) { query = ''; render(); } }
 function setFind(on) {
-  $('findBar').hidden = !on; $('find').setAttribute('aria-pressed', on); $('main').classList.toggle('finding', on);
-  if (on) $('q').focus(); else { $('q').value = ''; $('q').blur(); if (query) { query = ''; render(); } }
+  $('findBar').hidden = !on; $('main').classList.toggle('finding', on);
+  if (!on) clearFind();
 }
 function render() {
   const grid = $('grid');
@@ -553,7 +555,7 @@ for (const c of COLORS) {
 $('openBtn').onclick = () => {
   $('openBtn').classList.add('go');
   setTimeout(() => {
-    $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('find').hidden = false; $('exitBtn').hidden = false;
+    $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; setFind(true); $('exitBtn').hidden = false;
   }, 260);
 };
 
@@ -575,16 +577,15 @@ $('gear').onclick = () => { const open = $('menu').hidden; closeAll(); if (open)
   $('menu').hidden = false; $('veil').hidden = false; } };
 $('mLang').onclick = () => { $('mLang').setAttribute('aria-expanded', !($('langList').hidden = !$('langList').hidden)); };
 $('mUndo').onclick = () => { undoDelete(); closeAll(); };
-$('find').onclick = () => { closeMenu(); setFind($('findBar').hidden); };
-$('qx').onclick = () => setFind(false);
-$('q').oninput = () => { query = $('q').value; render(); };
-$('q').onkeydown = e => { if (e.key === 'Enter') $('q').blur(); if (e.key === 'Escape') setFind(false); };
+$('qx').onclick = () => { clearFind(); $('q').focus(); };
+$('q').oninput = () => { query = $('q').value; $('qx').hidden = !query; render(); };
+$('q').onkeydown = e => { if (e.key === 'Enter') $('q').blur(); if (e.key === 'Escape') { clearFind(); $('q').blur(); } };
 $('plus').onclick = () => { closeMenu(); $('pop').classList.contains('open') ? closePop() : openPop(); };
 $('veil').onclick = () => { if ($('pop').classList.contains('open')) save(); closeAll(); };
 $('exitBtn').onclick = () => {
   closeAll(); $('openBtn').classList.remove('go');
   $('main').classList.add('off'); $('start').classList.remove('off');
-  $('plus').hidden = true; $('gear').hidden = true; $('find').hidden = true; setFind(false); $('exitBtn').hidden = true;
+  $('plus').hidden = true; $('gear').hidden = true; setFind(false); $('exitBtn').hidden = true;
 };
 $('saveBtn').onclick = save;
 {
@@ -661,7 +662,7 @@ $('numsChk').onchange = () => { nums = $('numsChk').checked; try { localStorage.
 $('skipChk').onchange = () => { try { localStorage.setItem(KEY + '-skip', $('skipChk').checked ? '1' : ''); } catch (e) {} };
 if (skip) {
   $('start').style.transition = 'none';
-  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; $('find').hidden = false; $('exitBtn').hidden = false;
+  $('start').classList.add('off'); $('main').classList.remove('off'); $('plus').hidden = false; $('gear').hidden = false; setFind(true); $('exitBtn').hidden = false;
   setTimeout(() => { $('start').style.transition = ''; }, 50);
 }
 applyLang();
